@@ -1,0 +1,11 @@
+#virtual environment
+env/
+
+# Byte-compiled / optimized / DLL files
+*.pyc
+
+# Distribution / packaging
+build/
+
+#Tests
+tests/
