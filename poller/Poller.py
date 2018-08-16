@@ -108,6 +108,6 @@ def pingPoll(iprange):
 def _convertToDict(easysnmpvariable):
 	if type(easysnmpvariable) == easysnmp.variables.SNMPVariableList:
 		output = {}
-		for x in easysnmpvariable: output.update(convertToDict(x))
+		for x in easysnmpvariable: output.update(_convertToDict(x))
 		return output
 	else: return {str(easysnmpvariable.oid):str(easysnmpvariable.value)}
