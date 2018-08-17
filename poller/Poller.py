@@ -85,7 +85,7 @@ def pollInterfaces(host, community, v6=False, **kwargs):
 	result = []
 	if ips:
 		for ip in ips.keys():
-			try: result.append({'interface':pollIfDescr(host, ip)['ifDescr'].split(' ')[0].strip(','), address:str(ips[ip])})
+			try: result.append({'interface':pollIfDescr(host, ip, community, version=version, retries=retries, timeout=timeout)['ifDescr'].split(' ')[0].strip(','), address:str(ips[ip])})
 			except: continue
 	return result
 
@@ -95,14 +95,14 @@ def pollInterfaceIndex(host, index, community, **kwargs):
 	timeout = kwargs.get('timeout', 5)
 	return poll('ifIndex.' + str(index), host, community, version=version, retries=retries, timeout=timeout)
 
-def pollIfDescr(host, index):
+def pollIfDescr(host, index, community, **kwargs):
 	version = kwargs.get('version', 2)
 	retries = kwargs.get('retries', 0)
 	timeout = kwargs.get('timeout', 5)
 	return poll('ifDescr.' + str(index), host, community, version=version, retries=retries, timeout=timeout)
 
 def pingPoll(iprange):
-	return subprocess.run(['fping', '-ag', iprange, '-i', '10'], capture_output=True).stdout.decode().split('\n')
+	return subprocess.run(['fping', '-ag', iprange, '-i', '10'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).stdout.decode().split('\n')
 
 #Internal formatting function
 def _convertToDict(easysnmpvariable):
