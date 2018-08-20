@@ -104,7 +104,7 @@ def pollIfDescr(host, index, community, **kwargs):
 def pingPoll(iprange):
 	if re.search('/', iprange):
 		return subprocess.run(['fping', '-ag', iprange, '-i', '10'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).stdout.decode().split('\n')
-	raw = subprocess.Popen(['ping', "-i", "0.2", "-l", "3", "-w", "1", host], stdout=subprocess.PIPE)
+	raw = subprocess.Popen(['ping', "-i", "0.2", "-l", "3", "-w", "1", iprange], stdout=subprocess.PIPE)
 	while raw.poll() == None: time.sleep(0.1)
 	return False if raw.returncode else True
 
