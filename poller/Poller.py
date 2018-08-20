@@ -1,4 +1,4 @@
-import re, easysnmp, subprocess
+import re, easysnmp, subprocess, time
 import iputils.IPUtils as IPUtils
 
 #Generic poller, add any oid(s)
@@ -102,7 +102,12 @@ def pollIfDescr(host, index, community, **kwargs):
 	return poll('ifDescr.' + str(index), host, community, version=version, retries=retries, timeout=timeout)
 
 def pingPoll(iprange):
-	return subprocess.run(['fping', '-ag', iprange, '-i', '10'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).stdout.decode().split('\n')
+	if re.search('/', iprange):
+		return subprocess.run(['fping', '-ag', iprange, '-i', '10'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).stdout.decode().split('\n')
+	raw = subprocess.Popen(['ping', "-i", "0.2", "-l", "3", "-w", "1", host], stdout=subprocess.PIPE)
+	while raw.poll() == None: time.sleep(0.1)
+	return False if raw.returncode else True
+
 
 #Internal formatting function
 def _convertToDict(easysnmpvariable):
