@@ -64,7 +64,7 @@ def pollInterfaceIPs(host, community, index=None, v6=False, **kwargs):
 	version = "2.16" if v6 else "1.4"
 	for line in raw:
 		if line.oid_index.startswith(version) and not line.oid_index.startswith(version + ".254"):
-			addr = IPUtils.ipv6Reducer(":".join([str(format(int(digit), '02x')) for digit in line.oid_index.split('.')[2:]])) if v6 else str(line.oid_index.split('.', 2)[2])
+			addr = IPUtils.reduce_ipv6_address(":".join([str(format(int(digit), '02x')) for digit in line.oid_index.split('.')[2:]])) if v6 else str(line.oid_index.split('.', 2)[2])
 			if index and int(line.value) == int(index): return {int(line.value):result}
 			else: result.update({int(line.value):addr})
 	return result
