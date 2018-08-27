@@ -1,4 +1,4 @@
-import re, easysnmp, subprocess, time
+import re, easysnmp, subprocess, time, asyncio
 import iputils.IPUtils as IPUtils
 
 #Generic poller, add any oid(s)
