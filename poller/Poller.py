@@ -92,7 +92,9 @@ async def async_pollInterfaces(host, community, v6=False, **kwargs):
     result = []
     if ips:
         for ip in ips.keys():
-            try: result.append({'interface':await async_pollIfDescr(host, ip, community, version=version, retries=retries, timeout=timeout)['ifDescr'].split(' ')[0].strip(','), address:str(ips[ip])})
+            try:
+                interface = await async_pollIfDescr(host, ip, community, version=version, retries=retries, timeout=timeout)
+                result.append({'interface':interface['ifDescr'].split(' ')[0].strip(','), address:str(ips[ip])})
             except: continue
     return result
 
