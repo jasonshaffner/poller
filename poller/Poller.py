@@ -1,4 +1,8 @@
-import re, easysnmp, subprocess, time, asyncio
+import re
+import easysnmp
+import subprocess
+import time
+import asyncio
 import iputils.IPUtils as IPUtils
 
 #Generic poller, add any oid(s)
@@ -189,7 +193,8 @@ async def async_poll_interfaces(host, community, v6=False, **kwargs):
             try:
                 interface = await async_poll_ifDescr(host, ip, community, version=version, retries=retries, timeout=timeout)
                 result.append({'interface':interface['ifDescr'].split(' ')[0].strip(','), address:str(ips[ip])})
-            except: continue
+            except:
+                continue
     return result
 
 def poll_interface_index(host, index, community, **kwargs):
@@ -221,21 +226,34 @@ def ping_poll(*iprange):
         fping = subprocess.Popen(['fping', '-ag', iprange[0], iprange[1], '-i', '10'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
         return fping.communicate()[0].decode().split('\n')
     raw = subprocess.Popen(['ping', "-i", "0.2", "-l", "3", "-w", "1", iprange[0]], stdout=subprocess.PIPE)
-    while raw.poll() == None: time.sleep(0.1)
+    while raw.poll() == None:
+        time.sleep(0.1)
     return False if raw.returncode else True
 
-async def async_ping_poll(*iprange):
+async def async_ping_poll(*iprange, retries=2):
     if len(iprange) > 1:
-        fping = subprocess.Popen(['fping', '-ag', iprange[0], iprange[1], '-i', '10'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-        return fping.communicate()[0].decode().split('\n')
-    raw = subprocess.Popen(['ping', "-i", "0.2", "-l", "3", "-w", "1", iprange[0]], stdout=subprocess.PIPE)
-    while raw.poll() == None: await asyncio.sleep(0.1)
-    return False if raw.returncode else True
+        for attempt in range(retries):
+            try:
+                fping = subprocess.Popen(['fping', '-ag', iprange[0], iprange[1], '-i', '10'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+                return fping.communicate()[0].decode().split('\n')
+            except BlockingIOError:
+                await asyncio.sleep(5)
+    else:
+        for attempt in range(retries):
+            try:
+                raw = subprocess.Popen(['ping', "-i", "0.2", "-l", "3", "-w", "1", iprange[0]], stdout=subprocess.PIPE)
+                while raw.poll() == None:
+                    await asyncio.sleep(0.1)
+                return False if raw.returncode else True
+            except BlockingIOError:
+                await asyncio.sleep(5)
 
 #Internal formatting function
 def _convertToDict(easysnmpvariable):
     if type(easysnmpvariable) == easysnmp.variables.SNMPVariableList:
         output = {}
-        for x in easysnmpvariable: output.update(_convertToDict(x))
+        for x in easysnmpvariable:
+            output.update(_convertToDict(x))
         return output
-    else: return {str(easysnmpvariable.oid):str(easysnmpvariable.value)}
+    else:
+        return {str(easysnmpvariable.oid):str(easysnmpvariable.value)}
