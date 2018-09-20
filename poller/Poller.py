@@ -3,6 +3,7 @@ import easysnmp
 import subprocess
 import time
 import asyncio
+from functools import partial
 import iputils.IPUtils as IPUtils
 
 #Generic poller, add any oid(s)
@@ -17,12 +18,14 @@ def poll(oids, host, community, **kwargs):
     if get:
         return _convertToDict(get)
 
-async def async_poll(oids, host, community, **kwargs):
+@asyncio.coroutine
+def async_poll(oids, host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
     timeout = kwargs.get('timeout', 5)
+    loop = asyncio.get_event_loop()
     try:
-        get = easysnmp.snmp_get(oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout)
+        get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_get, oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
     except:
         return
     if get:
@@ -35,17 +38,21 @@ def poll_bulk(oids, host, community, **kwargs):
     timeout = kwargs.get('timeout', 5)
     try:
         get = easysnmp.snmp_get_bulk(oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout)
-    except: return
+    except:
+        return
     if get:
         return _convertToDict(get)
 
-async def async_poll_bulk(oids, host, community, **kwargs):
+@asyncio.coroutine
+def async_poll_bulk(oids, host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
     timeout = kwargs.get('timeout', 5)
+    loop = asyncio.get_event_loop()
     try:
-        get = easysnmp.snmp_get_bulk(oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout)
-    except: return
+        get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_get_bulk, oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
+    except:
+        return
     if get:
         return _convertToDict(get)
 
