@@ -10,7 +10,7 @@ import iputils.IPUtils as IPUtils
 def poll(oids, host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     try:
         get = easysnmp.snmp_get(oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout)
     except:
@@ -22,7 +22,7 @@ def poll(oids, host, community, **kwargs):
 def async_poll(oids, host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     loop = asyncio.get_event_loop()
     try:
         get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_get, oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
@@ -35,7 +35,7 @@ def async_poll(oids, host, community, **kwargs):
 def poll_bulk(oids, host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     try:
         get = easysnmp.snmp_get_bulk(oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout)
     except:
@@ -47,7 +47,7 @@ def poll_bulk(oids, host, community, **kwargs):
 def async_poll_bulk(oids, host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     loop = asyncio.get_event_loop()
     try:
         get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_get_bulk, oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
@@ -60,79 +60,79 @@ def async_poll_bulk(oids, host, community, **kwargs):
 def poll_base(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     return poll_bulk('system', host, community, version=version, retries=retries, timeout=timeout)
 
 async def async_poll_base(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     return await async_poll_bulk('system', host, community, version=version, retries=retries, timeout=timeout)
 
 def poll_descr(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     return poll('sysDescr.0', host, community, version=version, retries=retries, timeout=timeout)
 
 async def async_poll_descr(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     return await async_poll('sysDescr.0', host, community, version=version, retries=retries, timeout=timeout)
 
 def poll_contact(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     return poll('sysContact.0', host, community, version=version, retries=retries, timeout=timeout)
 
 async def async_poll_contact(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     return await async_poll('sysContact.0', host, community, version=version, retries=retries, timeout=timeout)
 
 def poll_name(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     return poll('sysName.0', host, community, version=version, retries=retries, timeout=timeout)
 
 async def async_poll_name(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     return await async_poll('sysName.0', host, community, version=version, retries=retries, timeout=timeout)
 
 def poll_location(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     return poll('sysLocatino.0', host, community, version=version, retries=retries, timeout=timeout)
 
 async def async_poll_location(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
-    return await async_poll('sysLocatino.0', host, community, version=version, retries=retries, timeout=timeout)
+    timeout = kwargs.get('timeout', 1)
+    return await async_poll('sysLocation.0', host, community, version=version, retries=retries, timeout=timeout)
 
 def poll_interface_number(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     return poll('ifNumber.0', host, community, version=version, retries=retries, timeout=timeout)
 
 async def async_poll_interface_number(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     return await async_poll('ifNumber.0', host, community, version=version, retries=retries, timeout=timeout)
 
 def poll_interface_ips(host, community, index=None, v6=False, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     try: raw = easysnmp.snmp_walk('ipAddressIfIndex', hostname=host, version=version, community=community, retries=retries, timeout=timeout)
     except: return
     result = {}
@@ -147,7 +147,7 @@ def poll_interface_ips(host, community, index=None, v6=False, **kwargs):
 async def async_poll_interface_ips(host, community, index=None, v6=False, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     try: raw = easysnmp.snmp_walk('ipAddressIfIndex', hostname=host, version=version, community=community, retries=retries, timeout=timeout)
     except: return
     result = {}
@@ -162,19 +162,19 @@ async def async_poll_interface_ips(host, community, index=None, v6=False, **kwar
 def poll_interface_ip(host, community, interface, v6=False, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     return poll_interfaces(host, community, v6=v6, version=version, retries=retries, timeout=timeout).get(interface)
 
 async def async_poll_interface_ip(host, community, interface, v6=False, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     return await async_poll_interfaces(host, community, v6=v6, version=version, retries=retries, timeout=timeout).get(interface)
 
 def poll_interfaces(host, community, v6=False, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     if v6: address = "v6_address"
     else: address = "v4_address"
     ips = poll_interface_ips(host, community, v6=v6, version=version, retries=retries, timeout=timeout)
@@ -190,7 +190,7 @@ def poll_interfaces(host, community, v6=False, **kwargs):
 async def async_poll_interfaces(host, community, v6=False, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     if v6: address = "v6_address"
     else: address = "v4_address"
     ips = await async_poll_interface_ips(host, community, v6=v6, version=version, retries=retries, timeout=timeout)
@@ -207,25 +207,25 @@ async def async_poll_interfaces(host, community, v6=False, **kwargs):
 def poll_interface_index(host, index, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     return poll('ifIndex.' + str(index), host, community, version=version, retries=retries, timeout=timeout)
 
 async def async_poll_interface_index(host, index, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     return await async_poll('ifIndex.' + str(index), host, community, version=version, retries=retries, timeout=timeout)
 
 def poll_ifDescr(host, index, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     return poll('ifDescr.' + str(index), host, community, version=version, retries=retries, timeout=timeout)
 
 async def async_poll_ifDescr(host, index, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
-    timeout = kwargs.get('timeout', 5)
+    timeout = kwargs.get('timeout', 1)
     return await async_poll('ifDescr.' + str(index), host, community, version=version, retries=retries, timeout=timeout)
 
 def ping_poll(*iprange):
@@ -241,19 +241,19 @@ async def async_ping_poll(*iprange, retries=2):
     if len(iprange) > 1:
         for attempt in range(retries):
             try:
-                fping = subprocess.Popen(['fping', '-ag', iprange[0], iprange[1], '-i', '10'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-                return fping.communicate()[0].decode().split('\n')
+                fping = await asyncio.create_subprocess_shell('fping -ag ' + iprange[0] + ' ' + iprange[1] + ' -i 10', stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL)
+                stdout, stderr = await fping.communicate()
+                return stdout.decode().split('\n')
             except BlockingIOError:
-                await asyncio.sleep(5)
+                await asyncio.sleep(1)
     else:
         for attempt in range(retries):
             try:
-                raw = subprocess.Popen(['ping', "-i", "0.2", "-l", "3", "-w", "1", iprange[0]], stdout=subprocess.PIPE)
-                while raw.poll() == None:
-                    await asyncio.sleep(0.1)
+                raw = await asyncio.create_subprocess_shell('ping -i 0.2 -l 3 -w 1 ' + iprange[0], stdout=asyncio.subprocess.PIPE)
+                stdout, stderr = await raw.communicate()
                 return False if raw.returncode else True
             except BlockingIOError:
-                await asyncio.sleep(5)
+                await asyncio.sleep(1)
 
 #Internal formatting function
 def _convertToDict(easysnmpvariable):
