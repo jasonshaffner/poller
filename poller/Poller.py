@@ -238,10 +238,12 @@ def ping_poll(*iprange):
     return False if raw.returncode else True
 
 async def async_ping_poll(*iprange, retries=2):
+    loop = asyncio.get_event_loop()
+    asyncio.get_child_watcher().attach_loop(loop)
     if len(iprange) > 1:
         for attempt in range(retries):
             try:
-                fping = await asyncio.create_subprocess_shell('fping -ag ' + iprange[0] + ' ' + iprange[1] + ' -i 10', stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL)
+                fping = await asyncio.create_subprocess_exec('fping', '-ag ', iprange[0], iprange[1], '-i', '10', stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL, loop=loop)
                 stdout, stderr = await fping.communicate()
                 return stdout.decode().split('\n')
             except BlockingIOError:
@@ -249,7 +251,7 @@ async def async_ping_poll(*iprange, retries=2):
     else:
         for attempt in range(retries):
             try:
-                raw = await asyncio.create_subprocess_shell('ping -i 0.2 -l 3 -w 1 ' + iprange[0], stdout=asyncio.subprocess.PIPE)
+                raw = await asyncio.create_subprocess_exec('ping', '-i', '0.2', '-l', '3', '-w', '1', iprange[0], stdout=asyncio.subprocess.PIPE, loop=loop)
                 stdout, stderr = await raw.communicate()
                 return False if raw.returncode else True
             except BlockingIOError:
