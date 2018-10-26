@@ -117,6 +117,80 @@ async def async_poll_location(host, community, **kwargs):
     timeout = kwargs.get('timeout', 1)
     return await async_poll('sysLocation.0', host, community, version=version, retries=retries, timeout=timeout)
 
+def poll_model(host, community, **kwargs):
+    version = kwargs.get('version', 2)
+    retries = kwargs.get('retries', 0)
+    timeout = kwargs.get('timeout', 1)
+    false_positives = re.compile("|".join(['MIDPLANE', \
+                                            'NOSUCH', \
+                                            'N/A', \
+                                            'ÿ', \
+                                            'DaughterCard', \
+                                            'Switch Stack', \
+                                            'Chassis System', \
+                                            'Control Ethernet', \
+                                            'NC6-RP', \
+                                            ]))
+    model = False
+    oids = [
+            '1.3.6.1.2.1.47.1.1.1.1.13.4', \
+            '1.3.6.1.2.1.47.1.1.1.1.13.1', \
+            '1.3.6.1.2.1.47.1.1.1.1.2.1', \
+            '1.3.6.1.2.1.47.1.1.1.1.2.149', \
+            '1.3.6.1.2.1.47.1.1.1.1.13.1001', \
+            '1.3.6.1.2.1.47.1.1.1.1.2.24555730', \
+            '1.3.6.1.4.1.9.9.249.1.1.1.1.3', \
+            '1.3.6.1.4.1.9.9.249.1.1.1.1.2', \
+            '1.3.6.1.2.1.47.1.1.1.1.10.2', \
+            '1.3.6.1.4.1.6527.3.1.2.2.1.6.1.2.2', \
+            '1.3.6.1.4.1.6527.3.1.2.2.1.6.1.2.12', \
+            ]
+    while not model and oids:
+        oid = oids.pop(0)
+        model = poll(oid, host, community, version=version, retries=retries, timeout=timeout)
+        if model:
+            for value in model.values():
+                if not value or not value.strip() or false_positives.search(value) or value == 'CHASSIS' or value == 'C ':
+                    model = False
+    return model
+
+async def async_poll_model(host, community, **kwargs):
+    version = kwargs.get('version', 2)
+    retries = kwargs.get('retries', 0)
+    timeout = kwargs.get('timeout', 1)
+    false_positives = re.compile("|".join(['MIDPLANE', \
+                                            'NOSUCH', \
+                                            'N/A', \
+                                            'ÿ', \
+                                            'DaughterCard', \
+                                            'Switch Stack', \
+                                            'Chassis System', \
+                                            'Control Ethernet', \
+                                            'NC6-RP', \
+                                            ]))
+    model = False
+    oids = [
+            '1.3.6.1.2.1.47.1.1.1.1.13.4', \
+            '1.3.6.1.2.1.47.1.1.1.1.13.1', \
+            '1.3.6.1.2.1.47.1.1.1.1.2.1', \
+            '1.3.6.1.2.1.47.1.1.1.1.2.149', \
+            '1.3.6.1.2.1.47.1.1.1.1.13.1001', \
+            '1.3.6.1.2.1.47.1.1.1.1.2.24555730', \
+            '1.3.6.1.4.1.9.9.249.1.1.1.1.3', \
+            '1.3.6.1.4.1.9.9.249.1.1.1.1.2', \
+            '1.3.6.1.2.1.47.1.1.1.1.10.2', \
+            '1.3.6.1.4.1.6527.3.1.2.2.1.6.1.2.2', \
+            '1.3.6.1.4.1.6527.3.1.2.2.1.6.1.2.12', \
+            ]
+    while not model and oids:
+        oid = oids.pop(0)
+        model = await async_poll(oid, host, community, version=version, retries=retries, timeout=timeout)
+        if model:
+            for value in model.values():
+                if not value or not value.strip() or false_positives.search(value) or value == 'CHASSIS' or value == 'C ':
+                    model = False
+    return model
+
 def poll_interface_number(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
