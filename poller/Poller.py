@@ -130,6 +130,8 @@ def poll_model(host, community, **kwargs):
                                             'Chassis System', \
                                             'Control Ethernet', \
                                             'NC6-RP', \
+                                            '\d\d\d\-\d\d\d\d', \
+                                            'Virtual', \
                                             ]))
     model = False
     oids = [
@@ -167,6 +169,8 @@ async def async_poll_model(host, community, **kwargs):
                                             'Chassis System', \
                                             'Control Ethernet', \
                                             'NC6-RP', \
+                                            '\d\d\d\-\d\d\d\d', \
+                                            'Virtual', \
                                             ]))
     model = False
     oids = [
