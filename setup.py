@@ -1,8 +1,10 @@
 from distutils.core import setup
 
 setup(name='poller',
-	version='0.1',
+	version='0.2',
 	packages=['poller'],
-    scripts=['scripts/pollbase'],
+    scripts=['scripts/pollbase', \
+            'scripts/pollmodel', \
+            ],
 	)
 
