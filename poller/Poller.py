@@ -132,6 +132,7 @@ def poll_model(host, community, **kwargs):
                                             'NC6-RP', \
                                             '\d\d\d\-\d\d\d\d', \
                                             'Virtual', \
+                                            '\d\d\.\d', \
                                             ]))
     model = False
     oids = [
@@ -171,6 +172,7 @@ async def async_poll_model(host, community, **kwargs):
                                             'NC6-RP', \
                                             '\d\d\d\-\d\d\d\d', \
                                             'Virtual', \
+                                            '\d\d\.\d', \
                                             ]))
     model = False
     oids = [
