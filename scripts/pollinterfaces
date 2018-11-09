@@ -1,0 +1,21 @@
+#!/bin/env python3
+
+import sys
+from poller import Poller
+from stringutils import StringUtils
+
+interfaces = Poller.poll_interfaces(sys.argv[1], sys.argv[2])
+output = []
+for interface in interfaces:
+    if int(interface.get('admin_status')) > 1:
+        admin_status = 'DOWN'
+    else:
+        admin_status = 'UP'
+    if int(interface.get('oper_status')) > 1:
+        oper_status = 'DOWN'
+    else:
+        oper_status = 'UP'
+    output.append([interface.get('interface'), admin_status, oper_status, interface.get('v4_address')])
+output = sorted(output)
+output.insert(0, ['Interface', 'Admin', 'Oper', 'Address'])
+print(StringUtils.columnize(output, width=10))

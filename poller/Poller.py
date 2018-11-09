@@ -56,6 +56,30 @@ def async_poll_bulk(oids, host, community, **kwargs):
     if get:
         return _convertToDict(get)
 
+@asyncio.coroutine
+def async_walk(oid, host, community, **kwargs):
+    version = kwargs.get('version', 2)
+    retries = kwargs.get('retries', 0)
+    timeout = kwargs.get('timeout', 1)
+    loop = asyncio.get_event_loop()
+    try:
+        get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_walk, oid, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
+    except:
+        return
+    if get:
+        return _convertToDict(get)
+
+def walk(oid, host, community, **kwargs):
+    version = kwargs.get('version', 2)
+    retries = kwargs.get('retries', 0)
+    timeout = kwargs.get('timeout', 1)
+    try:
+        get = easysnmp.snmp_walk(oid, hostname=host, version=version, community=community, retries=retries, timeout=timeout)
+    except:
+        return
+    if get:
+        return _convertToDict(get)
+
 #Base system poll, same as snmpbulkget system
 def poll_base(host, community, **kwargs):
     version = kwargs.get('version', 2)
@@ -109,7 +133,7 @@ def poll_location(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
     timeout = kwargs.get('timeout', 1)
-    return poll('sysLocatino.0', host, community, version=version, retries=retries, timeout=timeout)
+    return poll('sysLocation.0', host, community, version=version, retries=retries, timeout=timeout)
 
 async def async_poll_location(host, community, **kwargs):
     version = kwargs.get('version', 2)
@@ -213,30 +237,42 @@ def poll_interface_ips(host, community, index=None, v6=False, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
     timeout = kwargs.get('timeout', 1)
-    try: raw = easysnmp.snmp_walk('ipAddressIfIndex', hostname=host, version=version, community=community, retries=retries, timeout=timeout)
-    except: return
+    try:
+        raw = walk('ipAddressIfIndex', host=host, version=version, community=community, retries=retries, timeout=timeout)
+    except:
+        return
+    if not raw:
+        return
     result = {}
     version = "2.16" if v6 else "1.4"
-    for line in raw:
-        if line.oid_index.startswith(version) and not line.oid_index.startswith(version + ".254"):
-            addr = IPUtils.reduce_ipv6_address(":".join([str(format(int(digit), '02x')) for digit in line.oid_index.split('.')[2:]])) if v6 else str(line.oid_index.split('.', 2)[2])
-            if index and int(line.value) == int(index): return {int(line.value):result}
-            else: result.update({int(line.value):addr})
+    for line in raw.keys():
+        if int(raw[line]) and line.split('.', 1)[1].startswith(version) and not line.split('.', 1)[1].startswith(version + ".254"):
+            addr = IPUtils.reduce_ipv6_address(":".join([str(format(int(digit), '02x')) for digit in line.split('.')[3:]])) if v6 else str(line.split('.', 3)[-1])
+            if index and int(raw[line]) == int(index):
+                return {int(raw.get(line)):addr}
+            else:
+                result.update({int(raw.get(line)):addr})
     return result
 
 async def async_poll_interface_ips(host, community, index=None, v6=False, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
     timeout = kwargs.get('timeout', 1)
-    try: raw = easysnmp.snmp_walk('ipAddressIfIndex', hostname=host, version=version, community=community, retries=retries, timeout=timeout)
-    except: return
+    try:
+        raw = await async_walk('ipAddressIfIndex', host=host, version=version, community=community, retries=retries, timeout=timeout)
+    except:
+        return
+    if not raw:
+        return
     result = {}
     version = "2.16" if v6 else "1.4"
-    for line in raw:
-        if line.oid_index.startswith(version) and not line.oid_index.startswith(version + ".254"):
-            addr = IPUtils.reduce_ipv6_address(":".join([str(format(int(digit), '02x')) for digit in line.oid_index.split('.')[2:]])) if v6 else str(line.oid_index.split('.', 2)[2])
-            if index and int(line.value) == int(index): return {int(line.value):result}
-            else: result.update({int(line.value):addr})
+    for line in raw.keys():
+        if line.split('.', 1)[1].startswith(version) and not line.split('.', 1)[1].startswith(version + ".254"):
+            addr = IPUtils.reduce_ipv6_address(":".join([str(format(int(digit), '02x')) for digit in line.split('.')[3:]])) if v6 else str(line.split('.', 3)[-1])
+            if index and int(raw[line]) == int(index):
+                return {int(raw.get(line)):addr}
+            else:
+                result.update({int(raw.get(line)):addr})
     return result
 
 def poll_interface_ip(host, community, interface, v6=False, **kwargs):
@@ -251,20 +287,44 @@ async def async_poll_interface_ip(host, community, interface, v6=False, **kwargs
     timeout = kwargs.get('timeout', 1)
     return await async_poll_interfaces(host, community, v6=v6, version=version, retries=retries, timeout=timeout).get(interface)
 
+def poll_ifOperStatus(host, community, index=None, **kwargs):
+    version = kwargs.get('version', 2)
+    retries = kwargs.get('retries', 0)
+    timeout = kwargs.get('timeout', 1)
+    if index:
+        raw = poll(".".join(('ifOperStatus', str(index))), host=host, version=version, community=community, retries=retries, timeout=timeout)
+    else:
+        try:
+            return walk('ifOperStatus', host=host, version=version, community=community, retries=retries, timeout=timeout)
+        except:
+            return
+
+def poll_ifAdminStatus(host, community, index=None, **kwargs):
+    version = kwargs.get('version', 2)
+    retries = kwargs.get('retries', 0)
+    timeout = kwargs.get('timeout', 1)
+    if index:
+        raw = poll(".".join(('ifOperStatus', str(index))), host=host, version=version, community=community, retries=retries, timeout=timeout)
+    else:
+        try:
+            return walk('ifAdminStatus', host=host, version=version, community=community, retries=retries, timeout=timeout)
+        except:
+            return
+
 def poll_interfaces(host, community, v6=False, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
     timeout = kwargs.get('timeout', 1)
     if v6: address = "v6_address"
     else: address = "v4_address"
-    ips = poll_interface_ips(host, community, v6=v6, version=version, retries=retries, timeout=timeout)
+    ips = poll_interface_ips(host, community, v6=v6, version=version, retries=2, timeout=timeout)
+    interfaces = poll_ifDescr(host, community, version=version, retries=2, timeout=timeout)
+    oper = poll_ifOperStatus(host, community, version=version, retries=2, timeout=timeout)
+    admin = poll_ifAdminStatus(host, community, version=version, retries=2, timeout=timeout)
     result = []
     if ips:
         for ip in ips.keys():
-            try:
-                interface = poll_ifDescr(host, ip, community, version=version, retries=retries, timeout=timeout)
-                result.append({'interface':interface['ifDescr'].split(' ')[0].strip(','), address:str(ips[ip])})
-            except: continue
+            result.append({'interface':interfaces[".".join(('ifDescr', str(ip)))], address:str(ips[ip]), 'oper_status':oper[".".join(('ifOperStatus', str(ip)))], 'admin_status':admin['.'.join(('ifAdminStatus', str(ip)))]})
     return result
 
 async def async_poll_interfaces(host, community, v6=False, **kwargs):
@@ -274,14 +334,11 @@ async def async_poll_interfaces(host, community, v6=False, **kwargs):
     if v6: address = "v6_address"
     else: address = "v4_address"
     ips = await async_poll_interface_ips(host, community, v6=v6, version=version, retries=retries, timeout=timeout)
+    interfaces = await async_poll_ifDescr(host, community, version=version, retries=retries, timeout=timeout)
     result = []
-    if ips:
+    if ips and interfaces:
         for ip in ips.keys():
-            try:
-                interface = await async_poll_ifDescr(host, ip, community, version=version, retries=retries, timeout=timeout)
-                result.append({'interface':interface['ifDescr'].split(' ')[0].strip(','), address:str(ips[ip])})
-            except:
-                continue
+            result.append({'interface':interfaces[".".join(('ifDescr', str(ip)))], address:str(ips[ip])})
     return result
 
 def poll_interface_index(host, index, community, **kwargs):
@@ -296,17 +353,23 @@ async def async_poll_interface_index(host, index, community, **kwargs):
     timeout = kwargs.get('timeout', 1)
     return await async_poll('ifIndex.' + str(index), host, community, version=version, retries=retries, timeout=timeout)
 
-def poll_ifDescr(host, index, community, **kwargs):
+def poll_ifDescr(host, community, index=None, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
     timeout = kwargs.get('timeout', 1)
-    return poll('ifDescr.' + str(index), host, community, version=version, retries=retries, timeout=timeout)
+    if index:
+        return poll('ifDescr.' + str(index), host, community, version=version, retries=retries, timeout=timeout)
+    else:
+        return walk('ifDescr', host, community, version=version, retries=retries, timeout=timeout)
 
-async def async_poll_ifDescr(host, index, community, **kwargs):
+async def async_poll_ifDescr(host, community, index=None, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
     timeout = kwargs.get('timeout', 1)
-    return await async_poll('ifDescr.' + str(index), host, community, version=version, retries=retries, timeout=timeout)
+    if index:
+        return await async_poll('ifDescr.' + str(index), host, community, version=version, retries=retries, timeout=timeout)
+    else:
+        return await async_walk('ifDescr', host, community, version=version, retries=retries, timeout=timeout)
 
 def ping_poll(*iprange):
     if len(iprange) > 1:
@@ -339,10 +402,13 @@ async def async_ping_poll(*iprange, retries=2):
 
 #Internal formatting function
 def _convertToDict(easysnmpvariable):
-    if type(easysnmpvariable) == easysnmp.variables.SNMPVariableList:
+    if isinstance(easysnmpvariable, (easysnmp.variables.SNMPVariableList, list)):
         output = {}
         for x in easysnmpvariable:
             output.update(_convertToDict(x))
         return output
     else:
-        return {str(easysnmpvariable.oid):str(easysnmpvariable.value)}
+        if easysnmpvariable.oid_index:
+            return {".".join((str(easysnmpvariable.oid), str(easysnmpvariable.oid_index))):str(easysnmpvariable.value)}
+        else:
+            return {str(easysnmpvariable.oid):str(easysnmpvariable.value)}
