@@ -1,0 +1,6 @@
+#!/bin/env python3
+
+import sys
+from poller import Poller
+
+print(Poller.poll_location(sys.argv[1], sys.argv[2]))
