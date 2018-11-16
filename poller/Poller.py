@@ -171,6 +171,8 @@ def poll_model(host, community, **kwargs):
             '1.3.6.1.2.1.47.1.1.1.1.10.2', \
             '1.3.6.1.4.1.6527.3.1.2.2.1.6.1.2.2', \
             '1.3.6.1.4.1.6527.3.1.2.2.1.6.1.2.12', \
+            '1.3.6.1.4.1.2636.3.40.1.4.1.1.1.8.0', \
+            '1.3.6.1.4.1.2636.3.1.2.0', \
             ]
     while not model and oids:
         oid = oids.pop(0)
@@ -211,6 +213,8 @@ async def async_poll_model(host, community, **kwargs):
             '1.3.6.1.2.1.47.1.1.1.1.10.2', \
             '1.3.6.1.4.1.6527.3.1.2.2.1.6.1.2.2', \
             '1.3.6.1.4.1.6527.3.1.2.2.1.6.1.2.12', \
+            '1.3.6.1.4.1.2636.3.40.1.4.1.1.1.8.0', \
+            '1.3.6.1.4.1.2636.3.1.2.0', \
             ]
     while not model and oids:
         oid = oids.pop(0)
@@ -237,13 +241,23 @@ def poll_interface_ips(host, community, index=None, v6=False, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
     timeout = kwargs.get('timeout', 1)
+    result = {}
     try:
         raw = walk('ipAddressIfIndex', host=host, version=version, community=community, retries=retries, timeout=timeout)
     except:
         return
     if not raw:
-        return
-    result = {}
+        if v6:
+            return
+        try:
+            raw = walk('ipAdEntIfIndex', host=host, version=version, community=community, retries=retries, timeout=timeout)
+        except:
+            return
+        for line in raw.keys():
+            addr = line.split('.', 1)[1]
+            index = int(raw.get(line))
+            result.update({index:addr})
+        return result
     version = "2.16" if v6 else "1.4"
     for line in raw.keys():
         if int(raw[line]) and line.split('.', 1)[1].startswith(version) and not line.split('.', 1)[1].startswith(version + ".254"):
@@ -258,13 +272,25 @@ async def async_poll_interface_ips(host, community, index=None, v6=False, **kwar
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
     timeout = kwargs.get('timeout', 1)
+    result = {}
     try:
         raw = await async_walk('ipAddressIfIndex', host=host, version=version, community=community, retries=retries, timeout=timeout)
     except:
         return
     if not raw:
-        return
-    result = {}
+        if v6:
+            return
+        try:
+            raw = await async_walk('ipAdEntIfIndex', host=host, version=version, community=community, retries=retries, timeout=timeout)
+        except:
+            return
+        if not raw:
+            return
+        for line in raw.keys():
+            addr = line.split('.', 1)[1]
+            index = int(raw.get(line))
+            result.update({index:addr})
+        return result
     version = "2.16" if v6 else "1.4"
     for line in raw.keys():
         if line.split('.', 1)[1].startswith(version) and not line.split('.', 1)[1].startswith(version + ".254"):
@@ -299,6 +325,18 @@ def poll_ifOperStatus(host, community, index=None, **kwargs):
         except:
             return
 
+async def async_poll_ifOperStatus(host, community, index=None, **kwargs):
+    version = kwargs.get('version', 2)
+    retries = kwargs.get('retries', 0)
+    timeout = kwargs.get('timeout', 1)
+    if index:
+        raw = await async_poll(".".join(('ifOperStatus', str(index))), host=host, version=version, community=community, retries=retries, timeout=timeout)
+    else:
+        try:
+            return await async_walk('ifOperStatus', host=host, version=version, community=community, retries=retries, timeout=timeout)
+        except:
+            return
+
 def poll_ifAdminStatus(host, community, index=None, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 0)
@@ -308,6 +346,18 @@ def poll_ifAdminStatus(host, community, index=None, **kwargs):
     else:
         try:
             return walk('ifAdminStatus', host=host, version=version, community=community, retries=retries, timeout=timeout)
+        except:
+            return
+
+async def async_poll_ifAdminStatus(host, community, index=None, **kwargs):
+    version = kwargs.get('version', 2)
+    retries = kwargs.get('retries', 0)
+    timeout = kwargs.get('timeout', 1)
+    if index:
+        raw = await async_poll(".".join(('ifOperStatus', str(index))), host=host, version=version, community=community, retries=retries, timeout=timeout)
+    else:
+        try:
+            return await async_walk('ifAdminStatus', host=host, version=version, community=community, retries=retries, timeout=timeout)
         except:
             return
 
@@ -324,7 +374,8 @@ def poll_interfaces(host, community, v6=False, **kwargs):
     result = []
     if ips:
         for ip in ips.keys():
-            result.append({'interface':interfaces[".".join(('ifDescr', str(ip)))], address:str(ips[ip]), 'oper_status':oper[".".join(('ifOperStatus', str(ip)))], 'admin_status':admin['.'.join(('ifAdminStatus', str(ip)))]})
+            result.append({'interface':interfaces[".".join(('ifDescr', str(ip)))], address:str(ips[ip]),\
+                    'oper_status':oper[".".join(('ifOperStatus', str(ip)))], 'admin_status':admin['.'.join(('ifAdminStatus', str(ip)))]})
     return result
 
 async def async_poll_interfaces(host, community, v6=False, **kwargs):
@@ -335,10 +386,13 @@ async def async_poll_interfaces(host, community, v6=False, **kwargs):
     else: address = "v4_address"
     ips = await async_poll_interface_ips(host, community, v6=v6, version=version, retries=retries, timeout=timeout)
     interfaces = await async_poll_ifDescr(host, community, version=version, retries=retries, timeout=timeout)
+    oper = await async_poll_ifOperStatus(host, community, version=version, retries=2, timeout=timeout)
+    admin = await async_poll_ifAdminStatus(host, community, version=version, retries=2, timeout=timeout)
     result = []
     if ips and interfaces:
         for ip in ips.keys():
-            result.append({'interface':interfaces[".".join(('ifDescr', str(ip)))], address:str(ips[ip])})
+            result.append({'interface':interfaces[".".join(('ifDescr', str(ip)))], address:str(ips[ip]),\
+                    'oper_status':oper[".".join(('ifOperStatus', str(ip)))], 'admin_status':admin['.'.join(('ifAdminStatus', str(ip)))]})
     return result
 
 def poll_interface_index(host, index, community, **kwargs):
