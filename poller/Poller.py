@@ -391,8 +391,9 @@ async def async_poll_interfaces(host, community, v6=False, **kwargs):
     result = []
     if ips and interfaces:
         for ip in ips.keys():
-            result.append({'interface':interfaces[".".join(('ifDescr', str(ip)))], address:str(ips[ip]),\
-                    'oper_status':oper[".".join(('ifOperStatus', str(ip)))], 'admin_status':admin['.'.join(('ifAdminStatus', str(ip)))]})
+            if all((interfaces.get(".".join(('ifDescr', str(ip)))), oper.get(".".join(('ifOperStatus', str(ip)))), admin.get('.'.join(('ifAdminStatus', str(ip)))))):
+                result.append({'interface':interfaces[".".join(('ifDescr', str(ip)))], address:str(ips[ip]),\
+                        'oper_status':oper[".".join(('ifOperStatus', str(ip)))], 'admin_status':admin['.'.join(('ifAdminStatus', str(ip)))]})
     return result
 
 def poll_interface_index(host, index, community, **kwargs):
