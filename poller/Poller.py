@@ -389,7 +389,7 @@ async def async_poll_interfaces(host, community, v6=False, **kwargs):
     oper = await async_poll_ifOperStatus(host, community, version=version, retries=2, timeout=timeout)
     admin = await async_poll_ifAdminStatus(host, community, version=version, retries=2, timeout=timeout)
     result = []
-    if ips and interfaces:
+    if all((interfaces, oper, admin, ips)):
         for ip in ips.keys():
             if all((interfaces.get(".".join(('ifDescr', str(ip)))), oper.get(".".join(('ifOperStatus', str(ip)))), admin.get('.'.join(('ifAdminStatus', str(ip)))))):
                 result.append({'interface':interfaces[".".join(('ifDescr', str(ip)))], address:str(ips[ip]),\
