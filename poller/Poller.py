@@ -75,6 +75,7 @@ def walk(oid, host, community, **kwargs):
     timeout = kwargs.get('timeout', 1)
     try:
         get = easysnmp.snmp_walk(oid, hostname=host, version=version, community=community, retries=retries, timeout=timeout)
+        print(get)
     except:
         return
     if get:
@@ -243,30 +244,31 @@ def poll_interface_ips(host, community, index=None, v6=False, **kwargs):
     timeout = kwargs.get('timeout', 1)
     result = {}
     try:
-        raw = walk('ipAddressIfIndex', host=host, version=version, community=community, retries=retries, timeout=timeout)
+        raw = walk('ipAdEntIfIndex', host=host, version=version, community=community, retries=retries, timeout=timeout)
     except:
-        return
-    if not raw:
-        if v6:
-            return
-        try:
-            raw = walk('ipAdEntIfIndex', host=host, version=version, community=community, retries=retries, timeout=timeout)
-        except:
-            return
+        pass
+    if raw:
         for line in raw.keys():
             addr = line.split('.', 1)[1]
             index = int(raw.get(line))
             result.update({index:addr})
-        return result
-    version = "2.16" if v6 else "1.4"
-    for line in raw.keys():
-        if int(raw[line]) and line.split('.', 1)[1].startswith(version) and not line.split('.', 1)[1].startswith(version + ".254"):
-            addr = IPUtils.reduce_ipv6_address(":".join([str(format(int(digit), '02x')) for digit in line.split('.')[3:]])) if v6 else str(line.split('.', 3)[-1])
-            if index and int(raw[line]) == int(index):
-                return {int(raw.get(line)):addr}
-            else:
-                result.update({int(raw.get(line)):addr})
-    return result
+        if result:
+            return result
+    try:
+        raw = walk('ipAddressIfIndex', host=host, version=version, community=community, retries=retries, timeout=timeout)
+    except:
+        return
+    if raw:
+        version = "2.16" if v6 else "1.4"
+        for line in raw.keys():
+            if int(raw.get(line)) and line.split('.', 1)[1].startswith(version) and not line.split('.', 1)[1].startswith(version + ".254"):
+                addr = IPUtils.reduce_ipv6_address(":".join([str(format(int(digit), '02x')) for digit in line.split('.')[3:]])) if v6 else str(line.split('.', 3)[-1])
+                if index and int(raw[line]) == int(index):
+                    return {int(raw.get(line)):addr}
+                else:
+                    result.update({int(raw.get(line)):addr})
+        if result:
+            return result
 
 async def async_poll_interface_ips(host, community, index=None, v6=False, **kwargs):
     version = kwargs.get('version', 2)
@@ -274,32 +276,31 @@ async def async_poll_interface_ips(host, community, index=None, v6=False, **kwar
     timeout = kwargs.get('timeout', 1)
     result = {}
     try:
-        raw = await async_walk('ipAddressIfIndex', host=host, version=version, community=community, retries=retries, timeout=timeout)
+        raw = await async_walk('ipAdEntIfIndex', host=host, version=version, community=community, retries=retries, timeout=timeout)
     except:
-        return
-    if not raw:
-        if v6:
-            return
-        try:
-            raw = await async_walk('ipAdEntIfIndex', host=host, version=version, community=community, retries=retries, timeout=timeout)
-        except:
-            return
-        if not raw:
-            return
+        pass
+    if raw:
         for line in raw.keys():
             addr = line.split('.', 1)[1]
             index = int(raw.get(line))
             result.update({index:addr})
-        return result
-    version = "2.16" if v6 else "1.4"
-    for line in raw.keys():
-        if line.split('.', 1)[1].startswith(version) and not line.split('.', 1)[1].startswith(version + ".254"):
-            addr = IPUtils.reduce_ipv6_address(":".join([str(format(int(digit), '02x')) for digit in line.split('.')[3:]])) if v6 else str(line.split('.', 3)[-1])
-            if index and int(raw[line]) == int(index):
-                return {int(raw.get(line)):addr}
-            else:
-                result.update({int(raw.get(line)):addr})
-    return result
+        if result:
+            return result
+    try:
+        raw = await async_walk('ipAddressIfIndex', host=host, version=version, community=community, retries=retries, timeout=timeout)
+    except:
+        return
+    if raw:
+        version = "2.16" if v6 else "1.4"
+        for line in raw.keys():
+            if int(raw.get(line)) and line.split('.', 1)[1].startswith(version) and not line.split('.', 1)[1].startswith(version + ".254"):
+                addr = IPUtils.reduce_ipv6_address(":".join([str(format(int(digit), '02x')) for digit in line.split('.')[3:]])) if v6 else str(line.split('.', 3)[-1])
+                if index and int(raw[line]) == int(index):
+                    return {int(raw.get(line)):addr}
+                else:
+                    result.update({int(raw.get(line)):addr})
+        if result:
+            return result
 
 def poll_interface_ip(host, community, interface, v6=False, **kwargs):
     version = kwargs.get('version', 2)
@@ -372,10 +373,11 @@ def poll_interfaces(host, community, v6=False, **kwargs):
     oper = poll_ifOperStatus(host, community, version=version, retries=2, timeout=timeout)
     admin = poll_ifAdminStatus(host, community, version=version, retries=2, timeout=timeout)
     result = []
-    if ips:
+    if all((interfaces, oper, admin, ips)):
         for ip in ips.keys():
-            result.append({'interface':interfaces[".".join(('ifDescr', str(ip)))], address:str(ips[ip]),\
-                    'oper_status':oper[".".join(('ifOperStatus', str(ip)))], 'admin_status':admin['.'.join(('ifAdminStatus', str(ip)))]})
+            if all((interfaces.get(".".join(('ifDescr', str(ip)))), oper.get(".".join(('ifOperStatus', str(ip)))), admin.get('.'.join(('ifAdminStatus', str(ip)))))):
+                result.append({'interface':interfaces[".".join(('ifDescr', str(ip)))], address:str(ips[ip]),\
+                        'oper_status':oper[".".join(('ifOperStatus', str(ip)))], 'admin_status':admin['.'.join(('ifAdminStatus', str(ip)))]})
     return result
 
 async def async_poll_interfaces(host, community, v6=False, **kwargs):
