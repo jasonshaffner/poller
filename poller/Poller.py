@@ -243,8 +243,10 @@ def poll_interface_ips(host, community, index=None, v6=False, **kwargs):
     retries = kwargs.get('retries', 0)
     timeout = kwargs.get('timeout', 1)
     result = {}
+    raw = ''
     try:
-        raw = walk('ipAdEntIfIndex', host=host, version=version, community=community, retries=retries, timeout=timeout)
+        if not v6:
+            raw = walk('ipAdEntIfIndex', host=host, version=version, community=community, retries=retries, timeout=timeout)
     except:
         pass
     if raw:
@@ -275,8 +277,10 @@ async def async_poll_interface_ips(host, community, index=None, v6=False, **kwar
     retries = kwargs.get('retries', 0)
     timeout = kwargs.get('timeout', 1)
     result = {}
+    raw = ''
     try:
-        raw = await async_walk('ipAdEntIfIndex', host=host, version=version, community=community, retries=retries, timeout=timeout)
+        if not v6:
+            raw = await async_walk('ipAdEntIfIndex', host=host, version=version, community=community, retries=retries, timeout=timeout)
     except:
         pass
     if raw:
