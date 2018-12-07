@@ -149,6 +149,7 @@ def poll_model(host, community, **kwargs):
     false_positives = re.compile("|".join(['MIDPLANE', \
                                             'NOSUCH', \
                                             'N/A', \
+                                            'PORT', \
                                             'ÿ', \
                                             'DaughterCard', \
                                             'Switch Stack', \
@@ -168,6 +169,7 @@ def poll_model(host, community, **kwargs):
             '1.3.6.1.2.1.47.1.1.1.1.2.149', \
             '1.3.6.1.2.1.47.1.1.1.1.13.1001', \
             '1.3.6.1.2.1.47.1.1.1.1.2.24555730', \
+            '1.3.6.1.2.1.47.1.1.1.1.2.2', \
             '1.3.6.1.4.1.9.9.249.1.1.1.1.3', \
             '1.3.6.1.4.1.9.9.249.1.1.1.1.2', \
             '1.3.6.1.2.1.47.1.1.1.1.10.2', \
@@ -192,6 +194,7 @@ async def async_poll_model(host, community, **kwargs):
     false_positives = re.compile("|".join(['MIDPLANE', \
                                             'NOSUCH', \
                                             'N/A', \
+                                            'PORT', \
                                             'ÿ', \
                                             'DaughterCard', \
                                             'Switch Stack', \
@@ -211,6 +214,7 @@ async def async_poll_model(host, community, **kwargs):
             '1.3.6.1.2.1.47.1.1.1.1.2.149', \
             '1.3.6.1.2.1.47.1.1.1.1.13.1001', \
             '1.3.6.1.2.1.47.1.1.1.1.2.24555730', \
+            '1.3.6.1.2.1.47.1.1.1.1.2.2', \
             '1.3.6.1.4.1.9.9.249.1.1.1.1.3', \
             '1.3.6.1.4.1.9.9.249.1.1.1.1.2', \
             '1.3.6.1.2.1.47.1.1.1.1.10.2', \
@@ -253,7 +257,9 @@ def poll_interface_ips(host, community, index=None, v6=False, **kwargs):
         pass
     if raw:
         for line in raw.keys():
-            addr = line.split('.', 1)[1]
+            addr = ".".join(line.split('.')[-4:])
+            if len(addr.split('.')) > 4:
+                addr = line.split('.', 1)[1]
             index = int(raw.get(line))
             result.update({index:addr})
         if result:
