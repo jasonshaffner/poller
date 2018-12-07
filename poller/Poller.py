@@ -258,8 +258,6 @@ def poll_interface_ips(host, community, index=None, v6=False, **kwargs):
     if raw:
         for line in raw.keys():
             addr = ".".join(line.split('.')[-4:])
-            if len(addr.split('.')) > 4:
-                addr = line.split('.', 1)[1]
             index = int(raw.get(line))
             result.update({index:addr})
         if result:
@@ -293,7 +291,7 @@ async def async_poll_interface_ips(host, community, index=None, v6=False, **kwar
         pass
     if raw:
         for line in raw.keys():
-            addr = line.split('.', 1)[1]
+            addr = ".".join(line.split('.')[-4:])
             index = int(raw.get(line))
             result.update({index:addr})
         if result:
