@@ -4,12 +4,12 @@ import subprocess
 import time
 import asyncio
 from functools import partial
-import iputils.IPUtils as IPUtils
+from poller.utils import IPUtils
 
 #Generic poller, add any oid(s)
 def poll(oids, host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     try:
         get = easysnmp.snmp_get(oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout)
@@ -21,7 +21,7 @@ def poll(oids, host, community, **kwargs):
 @asyncio.coroutine
 def async_poll(oids, host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     loop = asyncio.get_event_loop()
     try:
@@ -34,7 +34,7 @@ def async_poll(oids, host, community, **kwargs):
 #Generic bulk poller, add any oid(s)
 def poll_bulk(oids, host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     try:
         get = easysnmp.snmp_get_bulk(oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout)
@@ -46,7 +46,7 @@ def poll_bulk(oids, host, community, **kwargs):
 @asyncio.coroutine
 def async_poll_bulk(oids, host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     loop = asyncio.get_event_loop()
     try:
@@ -59,7 +59,7 @@ def async_poll_bulk(oids, host, community, **kwargs):
 @asyncio.coroutine
 def async_walk(oid, host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     loop = asyncio.get_event_loop()
     try:
@@ -71,7 +71,7 @@ def async_walk(oid, host, community, **kwargs):
 
 def walk(oid, host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     try:
         get = easysnmp.snmp_walk(oid, hostname=host, version=version, community=community, retries=retries, timeout=timeout)
@@ -84,67 +84,67 @@ def walk(oid, host, community, **kwargs):
 #Base system poll, same as snmpbulkget system
 def poll_base(host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     return poll_bulk('system', host, community, version=version, retries=retries, timeout=timeout)
 
 async def async_poll_base(host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     return await async_poll_bulk('system', host, community, version=version, retries=retries, timeout=timeout)
 
 def poll_descr(host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     return poll('sysDescr.0', host, community, version=version, retries=retries, timeout=timeout)
 
 async def async_poll_descr(host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     return await async_poll('sysDescr.0', host, community, version=version, retries=retries, timeout=timeout)
 
 def poll_contact(host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     return poll('sysContact.0', host, community, version=version, retries=retries, timeout=timeout)
 
 async def async_poll_contact(host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     return await async_poll('sysContact.0', host, community, version=version, retries=retries, timeout=timeout)
 
 def poll_name(host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     return poll('sysName.0', host, community, version=version, retries=retries, timeout=timeout)
 
 async def async_poll_name(host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     return await async_poll('sysName.0', host, community, version=version, retries=retries, timeout=timeout)
 
 def poll_location(host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     return poll('sysLocation.0', host, community, version=version, retries=retries, timeout=timeout)
 
 async def async_poll_location(host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     return await async_poll('sysLocation.0', host, community, version=version, retries=retries, timeout=timeout)
 
 def poll_model(host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     false_positives = re.compile("|".join(['MIDPLANE', \
                                             'NOSUCH', \
@@ -152,14 +152,15 @@ def poll_model(host, community, **kwargs):
                                             'PORT', \
                                             'ÿ', \
                                             'DaughterCard', \
-                                            'Switch Stack', \
-                                            'Chassis System', \
+                                            'Switch\ Stack', \
+                                            'Chassis\ System', \
                                             'Control Ethernet', \
                                             'NC6-RP', \
                                             '\d\d\d\-\d\d\d\d', \
                                             'Virtual', \
                                             '\d\d\.\d', \
                                             '\d\.\d\.\d', \
+                                            '7600', \
                                             ]))
     model = False
     oids = [
@@ -189,7 +190,7 @@ def poll_model(host, community, **kwargs):
 
 async def async_poll_model(host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     false_positives = re.compile("|".join(['MIDPLANE', \
                                             'NOSUCH', \
@@ -197,14 +198,15 @@ async def async_poll_model(host, community, **kwargs):
                                             'PORT', \
                                             'ÿ', \
                                             'DaughterCard', \
-                                            'Switch Stack', \
-                                            'Chassis System', \
+                                            'Switch\ Stack', \
+                                            'Chassis\ System', \
                                             'Control Ethernet', \
                                             'NC6-RP', \
                                             '\d\d\d\-\d\d\d\d', \
                                             'Virtual', \
                                             '\d\d\.\d', \
                                             '\d\.\d\.\d', \
+                                            '7600', \
                                             ]))
     model = False
     oids = [
@@ -234,19 +236,19 @@ async def async_poll_model(host, community, **kwargs):
 
 def poll_interface_number(host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     return poll('ifNumber.0', host, community, version=version, retries=retries, timeout=timeout)
 
 async def async_poll_interface_number(host, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     return await async_poll('ifNumber.0', host, community, version=version, retries=retries, timeout=timeout)
 
 def poll_interface_ips(host, community, index=None, v6=False, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     result = {}
     raw = ''
@@ -280,7 +282,7 @@ def poll_interface_ips(host, community, index=None, v6=False, **kwargs):
 
 async def async_poll_interface_ips(host, community, index=None, v6=False, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     result = {}
     raw = ''
@@ -314,19 +316,19 @@ async def async_poll_interface_ips(host, community, index=None, v6=False, **kwar
 
 def poll_interface_ip(host, community, interface, v6=False, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     return poll_interfaces(host, community, v6=v6, version=version, retries=retries, timeout=timeout).get(interface)
 
 async def async_poll_interface_ip(host, community, interface, v6=False, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     return await async_poll_interfaces(host, community, v6=v6, version=version, retries=retries, timeout=timeout).get(interface)
 
 def poll_ifOperStatus(host, community, index=None, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     if index:
         raw = poll(".".join(('ifOperStatus', str(index))), host=host, version=version, community=community, retries=retries, timeout=timeout)
@@ -338,7 +340,7 @@ def poll_ifOperStatus(host, community, index=None, **kwargs):
 
 async def async_poll_ifOperStatus(host, community, index=None, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     if index:
         raw = await async_poll(".".join(('ifOperStatus', str(index))), host=host, version=version, community=community, retries=retries, timeout=timeout)
@@ -350,7 +352,7 @@ async def async_poll_ifOperStatus(host, community, index=None, **kwargs):
 
 def poll_ifAdminStatus(host, community, index=None, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     if index:
         raw = poll(".".join(('ifOperStatus', str(index))), host=host, version=version, community=community, retries=retries, timeout=timeout)
@@ -362,7 +364,7 @@ def poll_ifAdminStatus(host, community, index=None, **kwargs):
 
 async def async_poll_ifAdminStatus(host, community, index=None, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     if index:
         raw = await async_poll(".".join(('ifOperStatus', str(index))), host=host, version=version, community=community, retries=retries, timeout=timeout)
@@ -374,7 +376,7 @@ async def async_poll_ifAdminStatus(host, community, index=None, **kwargs):
 
 def poll_interfaces(host, community, v6=False, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     if v6: address = "v6_address"
     else: address = "v4_address"
@@ -392,7 +394,7 @@ def poll_interfaces(host, community, v6=False, **kwargs):
 
 async def async_poll_interfaces(host, community, v6=False, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     if v6: address = "v6_address"
     else: address = "v4_address"
@@ -410,19 +412,19 @@ async def async_poll_interfaces(host, community, v6=False, **kwargs):
 
 def poll_interface_index(host, index, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     return poll('ifIndex.' + str(index), host, community, version=version, retries=retries, timeout=timeout)
 
 async def async_poll_interface_index(host, index, community, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     return await async_poll('ifIndex.' + str(index), host, community, version=version, retries=retries, timeout=timeout)
 
 def poll_ifDescr(host, community, index=None, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     if index:
         return poll('ifDescr.' + str(index), host, community, version=version, retries=retries, timeout=timeout)
@@ -431,7 +433,7 @@ def poll_ifDescr(host, community, index=None, **kwargs):
 
 async def async_poll_ifDescr(host, community, index=None, **kwargs):
     version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 0)
+    retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     if index:
         return await async_poll('ifDescr.' + str(index), host, community, version=version, retries=retries, timeout=timeout)

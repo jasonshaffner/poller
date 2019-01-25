@@ -1,8 +1,8 @@
 from distutils.core import setup
 
 setup(name='poller',
-	version='0.5',
-	packages=['poller'],
+	version='0.9',
+	packages=['poller', 'poller.utils'],
     scripts=['scripts/poll', \
             'scripts/pollbase', \
             'scripts/pollbulk', \

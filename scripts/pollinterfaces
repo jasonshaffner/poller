@@ -2,7 +2,7 @@
 
 import sys
 from poller import Poller
-from stringutils import StringUtils
+from poller.utils import StringUtils
 
 interfaces = Poller.poll_interfaces(sys.argv[1], sys.argv[2])
 output = []
