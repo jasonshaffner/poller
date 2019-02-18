@@ -75,7 +75,6 @@ def walk(oid, host, community, **kwargs):
     timeout = kwargs.get('timeout', 1)
     try:
         get = easysnmp.snmp_walk(oid, hostname=host, version=version, community=community, retries=retries, timeout=timeout)
-        print(get)
     except:
         return
     if get:
@@ -408,6 +407,36 @@ async def async_poll_interfaces(host, community, v6=False, **kwargs):
             if all((interfaces.get(".".join(('ifDescr', str(ip)))), oper.get(".".join(('ifOperStatus', str(ip)))), admin.get('.'.join(('ifAdminStatus', str(ip)))))):
                 result.append({'interface':interfaces[".".join(('ifDescr', str(ip)))], address:str(ips[ip]),\
                         'oper_status':oper[".".join(('ifOperStatus', str(ip)))], 'admin_status':admin['.'.join(('ifAdminStatus', str(ip)))]})
+    return result
+
+def poll_ip_interfaces(host, community, v6=False, **kwargs):
+    version = kwargs.get('version', 2)
+    retries = kwargs.get('retries', 1)
+    timeout = kwargs.get('timeout', 1)
+    if v6: address = "v6_address"
+    else: address = "v4_address"
+    ips = poll_interface_ips(host, community, v6=v6, version=version, retries=2, timeout=timeout)
+    interfaces = poll_ifDescr(host, community, version=version, retries=2, timeout=timeout)
+    result = []
+    if all((interfaces, ips)):
+        for ip in ips.keys():
+            if interfaces.get(".".join(('ifDescr', str(ip)))):
+                result.append({interfaces[".".join(('ifDescr', str(ip)))]:str(ips[ip])})
+    return result
+
+async def async_poll_ip_interfaces(host, community, v6=False, **kwargs):
+    version = kwargs.get('version', 2)
+    retries = kwargs.get('retries', 1)
+    timeout = kwargs.get('timeout', 1)
+    if v6: address = "v6_address"
+    else: address = "v4_address"
+    ips = await async_poll_interface_ips(host, community, v6=v6, version=version, retries=2, timeout=timeout)
+    interfaces = await async_poll_ifDescr(host, community, version=version, retries=2, timeout=timeout)
+    result = []
+    if all((interfaces, ips)):
+        for ip in ips.keys():
+            if interfaces.get(".".join(('ifDescr', str(ip)))):
+                result.append({interfaces[".".join(('ifDescr', str(ip)))]:str(ips[ip])})
     return result
 
 def poll_interface_index(host, index, community, **kwargs):
