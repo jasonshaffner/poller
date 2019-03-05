@@ -6,6 +6,8 @@ env/
 
 # Distribution / packaging
 build/
+dist/
+poller.egg*/
 
 #Tests
 tests/
