@@ -1,3 +1,4 @@
+import pkgutil
 import re
 import easysnmp
 import subprocess
@@ -6,6 +7,9 @@ import asyncio
 from functools import partial
 from poller.utils import IPUtils
 
+translation_file = [line.decode().strip() for line in pkgutil.get_data('poller', 'translations').splitlines()]
+translations = {line.split(':')[0]: {'make': line.split(':')[1], 'model': line.split(':')[2].strip()} for line in translation_file}
+
 #Generic poller, add any oid(s)
 def poll(oids, host, community, **kwargs):
     version = kwargs.get('version', 2)
@@ -13,7 +17,8 @@ def poll(oids, host, community, **kwargs):
     timeout = kwargs.get('timeout', 1)
     try:
         get = easysnmp.snmp_get(oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout)
-    except:
+    except Exception as err:
+        print(f'poll: Exception {err} occurred')
         return
     if get:
         return _convertToDict(get)
@@ -26,7 +31,8 @@ def async_poll(oids, host, community, **kwargs):
     loop = asyncio.get_event_loop()
     try:
         get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_get, oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
-    except:
+    except Exception as err:
+        print(f'async_poll: Exception {err} occurred')
         return
     if get:
         return _convertToDict(get)
@@ -38,7 +44,8 @@ def poll_bulk(oids, host, community, **kwargs):
     timeout = kwargs.get('timeout', 1)
     try:
         get = easysnmp.snmp_get_bulk(oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout)
-    except:
+    except Exception as err:
+        print(f'poll_bulk: Exception {err} occurred')
         return
     if get:
         return _convertToDict(get)
@@ -51,7 +58,8 @@ def async_poll_bulk(oids, host, community, **kwargs):
     loop = asyncio.get_event_loop()
     try:
         get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_get_bulk, oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
-    except:
+    except Exception as err:
+        print(f'async_poll_bulk: Exception {err} occurred')
         return
     if get:
         return _convertToDict(get)
@@ -64,7 +72,8 @@ def async_walk(oid, host, community, **kwargs):
     loop = asyncio.get_event_loop()
     try:
         get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_walk, oid, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
-    except:
+    except Exception as err:
+        print(f'async_walk: Exception {err} occurred')
         return
     if get:
         return _convertToDict(get)
@@ -469,6 +478,54 @@ async def async_poll_ifDescr(host, community, index=None, **kwargs):
     else:
         return await async_walk('ifDescr', host, community, version=version, retries=retries, timeout=timeout)
 
+def poll_serial_number(host, community, index=None, make=None, **kwargs):
+    version = kwargs.get('version', 2)
+    retries = kwargs.get('retries', 1)
+    timeout = kwargs.get('timeout', 1)
+    oids = {'cisco': '.1.3.6.1.2.1.47.1.1.1.1.11',
+            'juniper': '.1.3.6.1.4.1.2636.3.1.3',
+            'f5': '.1.3.6.1.4.1.3375.2.1.3.3.3',
+            'a10': '.1.3.6.1.4.1.22610.2.4.1.6.2',
+            'avocent': '.1.3.6.1.4.1.10418.16.2.1.4',
+            'alcatel': '.1.3.6.1.4.1.6527.3.1.2.2.1.8.1.5'}
+    if make and oids.get(make):
+        oids = {make: oids.get(make)}
+    if index:
+        for oid in oids.values():
+            result = poll(oid + str(index), host, community, version=version, retries=retries, timeout=timeout)
+            if result:
+                return result
+    else:
+        for oid in oids.values():
+            result = walk(oid, host, community, version=version, retries=retries, timeout=timeout)
+            if result:
+                return result
+
+async def async_poll_serial_number(host, community, index=None, make=None, **kwargs):
+    version = kwargs.get('version', 2)
+    retries = kwargs.get('retries', 1)
+    timeout = kwargs.get('timeout', 1)
+    oids = {'cisco': '.1.3.6.1.2.1.47.1.1.1.1.11',
+            'juniper': '.1.3.6.1.4.1.2636.3.1.3',
+            'f5': '.1.3.6.1.4.1.3375.2.1.3.3.3',
+            'a10': '.1.3.6.1.4.1.22610.2.4.1.6.2',
+            'avocent': '.1.3.6.1.4.1.10418.16.2.1.4',
+            'alcatel': '.1.3.6.1.4.1.6527.3.1.2.2.1.8.1.5'}
+    if make and oids.get(make):
+        oids = {make: oids.get(make)}
+    if not isinstance(index, type(None)):
+        for oid in oids.values():
+            print(f'async_poll_serial_number: oid: {oid}, index: {index}, {".".join((oid, str(index)))}')
+            result = await async_poll(".".join((oid, str(index))), host, community, version=version, retries=retries, timeout=timeout)
+            print(f'async_poll_serial_number: oid: {oid}, index: {index}, {".".join((oid, str(index)))}, result: {result}')
+            if result and 'NOSUCHOBJECT' not in result.values():
+                return result
+    else:
+        for oid in oids.values():
+            result = await async_walk(oid, host, community, version=version, retries=retries, timeout=timeout)
+            if result:
+                return result
+
 def ping_poll(*iprange):
     if len(iprange) > 1:
         fping = subprocess.Popen(['fping', '-ag', iprange[0], iprange[1], '-i', '10'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
@@ -497,6 +554,20 @@ async def async_ping_poll(*iprange, retries=2):
                 return False if raw.returncode else True
             except BlockingIOError:
                 await asyncio.sleep(1)
+
+def poll_make_model(host, community, **kwargs):
+    version = kwargs.get('version', 2)
+    retries = kwargs.get('retries', 1)
+    timeout = kwargs.get('timeout', 1)
+    make = None
+    model = None
+    result = poll('sysObjectID.0', host, community, version=version, retries=retries, timeout=timeout)
+    sysObjectId = result.get('sysObjectID.0') if result and result.get('sysObjectID.0') else None
+    if sysObjectId:
+        make = translations.get(sysObjectId).get('make')
+        model = translations.get(sysObjectId).get('model')
+    return make, model
+
 
 #Internal formatting function
 def _convertToDict(easysnmpvariable):
