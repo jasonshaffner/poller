@@ -526,6 +526,60 @@ async def async_poll_serial_number(host, community, index=None, make=None, **kwa
             if result:
                 return result
 
+def poll_number_of_chassis(host, community, make, **kwargs):
+    version = kwargs.get('version', 2)
+    retries = kwargs.get('retries', 1)
+    timeout = kwargs.get('timeout', 1)
+    oids = {'cisco': '.1.3.6.1.2.1.47.1.1.1.1.5',
+            'alcatel': '.1.3.6.1.4.1.6527.3.1.2.2.1.8.1.8'}
+    if make and oids.get(make):
+        oid = oids.get(make)
+    else:
+        return
+    snmp_output = walk(oid, host, community, version=version, retries=retries, timeout=timeout)
+    if not snmp_output:
+        print(f'No output from walk {host} {make} {oid}')
+        return
+    chassis = 0
+    for key in snmp_output.keys():
+        try:
+            if make == 'cisco' and int(snmp_output.get(key)) == 3:
+                print(f'Appending to chassis: {key}')
+                chassis += 1
+            elif make == 'alcatel' and re.search('chassis', snmp_output.get(key), flags=re.IGNORECASE):
+                print(f'Appending to chassis: {key}')
+                chassis += 1
+        except ValueError as err:
+            print(err)
+    return chassis
+
+async def async_poll_number_of_chassis(host, community, make, **kwargs):
+    version = kwargs.get('version', 2)
+    retries = kwargs.get('retries', 1)
+    timeout = kwargs.get('timeout', 1)
+    oids = {'cisco': '.1.3.6.1.2.1.47.1.1.1.1.5',
+            'alcatel': '.1.3.6.1.4.1.6527.3.1.2.2.1.8.1.8'}
+    if make and oids.get(make):
+        oid = oids.get(make)
+    else:
+        return
+    snmp_output = await async_walk(oid, host, community, version=version, retries=retries, timeout=timeout)
+    if not snmp_output:
+        print(f'No output from walk {host} {make} {oid}')
+        return
+    chassis = 0
+    for key in snmp_output.keys():
+        try:
+            if make == 'cisco' and int(snmp_output.get(key)) == 3:
+                print(f'Appending to chassis: {key}')
+                chassis += 1
+            elif make == 'alcatel' and re.search('chassis', snmp_output.get(key), flags=re.IGNORECASE):
+                print(f'Appending to chassis: {key}')
+                chassis += 1
+        except ValueError as err:
+            print(err)
+    return chassis
+
 def ping_poll(*iprange):
     if len(iprange) > 1:
         fping = subprocess.Popen(['fping', '-ag', iprange[0], iprange[1], '-i', '10'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
