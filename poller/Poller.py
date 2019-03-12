@@ -18,7 +18,7 @@ def poll(oids, host, community, **kwargs):
     try:
         get = easysnmp.snmp_get(oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout)
     except Exception as err:
-        print(f'poll: Exception {err} occurred')
+#        print(f'poll: Exception {err} occurred')
         return
     if get:
         return _convertToDict(get)
@@ -32,7 +32,7 @@ def async_poll(oids, host, community, **kwargs):
     try:
         get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_get, oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
     except Exception as err:
-        print(f'async_poll: Exception {err} occurred')
+#        print(f'async_poll: Exception {err} occurred')
         return
     if get:
         return _convertToDict(get)
@@ -45,7 +45,7 @@ def poll_bulk(oids, host, community, **kwargs):
     try:
         get = easysnmp.snmp_get_bulk(oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout)
     except Exception as err:
-        print(f'poll_bulk: Exception {err} occurred')
+#        print(f'poll_bulk: Exception {err} occurred')
         return
     if get:
         return _convertToDict(get)
@@ -59,7 +59,7 @@ def async_poll_bulk(oids, host, community, **kwargs):
     try:
         get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_get_bulk, oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
     except Exception as err:
-        print(f'async_poll_bulk: Exception {err} occurred')
+#        print(f'async_poll_bulk: Exception {err} occurred')
         return
     if get:
         return _convertToDict(get)
@@ -73,7 +73,7 @@ def async_walk(oid, host, community, **kwargs):
     try:
         get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_walk, oid, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
     except Exception as err:
-        print(f'async_walk: Exception {err} occurred')
+#        print(f'async_walk: Exception {err} occurred')
         return
     if get:
         return _convertToDict(get)
@@ -515,9 +515,9 @@ async def async_poll_serial_number(host, community, index=None, make=None, **kwa
         oids = {make: oids.get(make)}
     if not isinstance(index, type(None)):
         for oid in oids.values():
-            print(f'async_poll_serial_number: oid: {oid}, index: {index}, {".".join((oid, str(index)))}')
+            #print(f'async_poll_serial_number: oid: {oid}, index: {index}, {".".join((oid, str(index)))}')
             result = await async_poll(".".join((oid, str(index))), host, community, version=version, retries=retries, timeout=timeout)
-            print(f'async_poll_serial_number: oid: {oid}, index: {index}, {".".join((oid, str(index)))}, result: {result}')
+            #print(f'async_poll_serial_number: oid: {oid}, index: {index}, {".".join((oid, str(index)))}, result: {result}')
             if result and 'NOSUCHOBJECT' not in result.values():
                 return result
     else:
