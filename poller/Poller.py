@@ -544,10 +544,8 @@ def poll_number_of_chassis(host, community, make, **kwargs):
     for key in snmp_output.keys():
         try:
             if make == 'cisco' and int(snmp_output.get(key)) == 3:
-                print(f'Appending to chassis: {key}')
                 chassis += 1
             elif make == 'alcatel' and re.search('chassis', snmp_output.get(key), flags=re.IGNORECASE):
-                print(f'Appending to chassis: {key}')
                 chassis += 1
         except ValueError as err:
             print(err)
@@ -571,10 +569,8 @@ async def async_poll_number_of_chassis(host, community, make, **kwargs):
     for key in snmp_output.keys():
         try:
             if make == 'cisco' and int(snmp_output.get(key)) == 3:
-                print(f'Appending to chassis: {key}')
                 chassis += 1
             elif make == 'alcatel' and re.search('chassis', snmp_output.get(key), flags=re.IGNORECASE):
-                print(f'Appending to chassis: {key}')
                 chassis += 1
         except ValueError as err:
             print(err)
