@@ -155,7 +155,6 @@ def poll_model(host, community, **kwargs):
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     false_positives = re.compile("|".join(['MIDPLANE', \
-                                            'CHASSIS',\
                                             'NOSUCH', \
                                             'N/A', \
                                             'PORT', \
@@ -197,7 +196,7 @@ def poll_model(host, community, **kwargs):
         model = poll(oid, host, community, version=version, retries=retries, timeout=timeout)
         if model:
             for value in model.values():
-                if not value or not value.strip() or false_positives.search(value) or value == 'CHASSIS' or value == 'C ':
+                if not value or not value.strip() or false_positives.search(value) or value == 'CHASSIS' or value == 'C ' or value == 'Chassis':
                     model = False
     return model
 
@@ -206,7 +205,6 @@ async def async_poll_model(host, community, **kwargs):
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     false_positives = re.compile("|".join(['MIDPLANE', \
-                                            'CHASSIS',\
                                             'NOSUCH', \
                                             'N/A', \
                                             'PORT', \
@@ -248,7 +246,7 @@ async def async_poll_model(host, community, **kwargs):
         model = await async_poll(oid, host, community, version=version, retries=retries, timeout=timeout)
         if model:
             for value in model.values():
-                if not value or not value.strip() or false_positives.search(value) or value == 'CHASSIS' or value == 'C ':
+                if not value or not value.strip() or false_positives.search(value) or value == 'CHASSIS' or value == 'C ' or value == 'Chassis':
                     model = False
     return model
 
