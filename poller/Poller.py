@@ -155,6 +155,7 @@ def poll_model(host, community, **kwargs):
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     false_positives = re.compile("|".join(['MIDPLANE', \
+                                            'CHASSIS',\
                                             'NOSUCH', \
                                             'N/A', \
                                             'PORT', \
@@ -172,6 +173,7 @@ def poll_model(host, community, **kwargs):
                                             ]))
     model = False
     oids = [
+            '1.3.6.1.2.1.47.1.1.1.1.7.1',\
             '1.3.6.1.2.1.47.1.1.1.1.13.4', \
             '1.3.6.1.2.1.47.1.1.1.1.13.1', \
             '1.3.6.1.2.1.47.1.1.1.1.2.1', \
@@ -186,6 +188,9 @@ def poll_model(host, community, **kwargs):
             '1.3.6.1.4.1.6527.3.1.2.2.1.6.1.2.12', \
             '1.3.6.1.4.1.2636.3.40.1.4.1.1.1.8.0', \
             '1.3.6.1.4.1.2636.3.1.2.0', \
+            '1.3.6.1.4.1.10418.16.2.1.2.0',\
+            '1.3.6.1.4.1.10418.26.2.1.2.0',\
+            '1.3.6.1.4.1.3375.2.1.3.5.2.0',\
             ]
     while not model and oids:
         oid = oids.pop(0)
@@ -201,6 +206,7 @@ async def async_poll_model(host, community, **kwargs):
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     false_positives = re.compile("|".join(['MIDPLANE', \
+                                            'CHASSIS',\
                                             'NOSUCH', \
                                             'N/A', \
                                             'PORT', \
@@ -218,6 +224,7 @@ async def async_poll_model(host, community, **kwargs):
                                             ]))
     model = False
     oids = [
+            '1.3.6.1.2.1.47.1.1.1.1.7.1',\
             '1.3.6.1.2.1.47.1.1.1.1.13.4', \
             '1.3.6.1.2.1.47.1.1.1.1.13.1', \
             '1.3.6.1.2.1.47.1.1.1.1.2.1', \
@@ -232,6 +239,9 @@ async def async_poll_model(host, community, **kwargs):
             '1.3.6.1.4.1.6527.3.1.2.2.1.6.1.2.12', \
             '1.3.6.1.4.1.2636.3.40.1.4.1.1.1.8.0', \
             '1.3.6.1.4.1.2636.3.1.2.0', \
+            '1.3.6.1.4.1.10418.16.2.1.2.0',\
+            '1.3.6.1.4.1.10418.26.2.1.2.0',\
+            '1.3.6.1.4.1.3375.2.1.3.5.2.0',\
             ]
     while not model and oids:
         oid = oids.pop(0)
