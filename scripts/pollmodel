@@ -3,4 +3,4 @@
 import sys
 from poller import Poller
 
-print(Poller.poll_model(sys.argv[1], sys.argv[2]))
+print(Poller.poll_make_series_model(sys.argv[1], sys.argv[2]))

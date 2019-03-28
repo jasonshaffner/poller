@@ -1,5 +1,6 @@
 import pkgutil
 import re
+import json
 import easysnmp
 import subprocess
 import time
@@ -7,8 +8,7 @@ import asyncio
 from functools import partial
 from poller.utils import IPUtils
 
-translation_file = [line.decode().strip() for line in pkgutil.get_data('poller', 'translations').splitlines()]
-translations = {line.split(':')[0]: {'make': line.split(':')[1], 'model': line.split(':')[2].strip()} for line in translation_file}
+translations = json.loads(pkgutil.get_data('poller', 'translations'))
 
 #Generic poller, add any oid(s)
 def poll(oids, host, community, **kwargs):
@@ -18,7 +18,6 @@ def poll(oids, host, community, **kwargs):
     try:
         get = easysnmp.snmp_get(oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout)
     except Exception as err:
-#        print(f'poll: Exception {err} occurred')
         return
     if get:
         return _convertToDict(get)
@@ -32,7 +31,6 @@ def async_poll(oids, host, community, **kwargs):
     try:
         get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_get, oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
     except Exception as err:
-#        print(f'async_poll: Exception {err} occurred')
         return
     if get:
         return _convertToDict(get)
@@ -45,7 +43,6 @@ def poll_bulk(oids, host, community, **kwargs):
     try:
         get = easysnmp.snmp_get_bulk(oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout)
     except Exception as err:
-#        print(f'poll_bulk: Exception {err} occurred')
         return
     if get:
         return _convertToDict(get)
@@ -59,7 +56,6 @@ def async_poll_bulk(oids, host, community, **kwargs):
     try:
         get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_get_bulk, oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
     except Exception as err:
-#        print(f'async_poll_bulk: Exception {err} occurred')
         return
     if get:
         return _convertToDict(get)
@@ -73,7 +69,6 @@ def async_walk(oid, host, community, **kwargs):
     try:
         get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_walk, oid, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
     except Exception as err:
-#        print(f'async_walk: Exception {err} occurred')
         return
     if get:
         return _convertToDict(get)
@@ -106,161 +101,195 @@ def poll_descr(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
-    return poll('sysDescr.0', host, community, version=version, retries=retries, timeout=timeout)
+    poll_result = poll('sysDescr.0', host, community, version=version, retries=retries, timeout=timeout)
+    if poll_result:
+        return poll_result.get('sysDescr.0')
 
 async def async_poll_descr(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
-    return await async_poll('sysDescr.0', host, community, version=version, retries=retries, timeout=timeout)
+    poll_result = await async_poll('sysDescr.0', host, community, version=version, retries=retries, timeout=timeout)
+    if poll_result:
+        return poll_result.get('sysDescr.0')
 
 def poll_contact(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
-    return poll('sysContact.0', host, community, version=version, retries=retries, timeout=timeout)
+    poll_result = poll('sysContact.0', host, community, version=version, retries=retries, timeout=timeout)
+    if poll_result:
+        return poll_result.get('sysContact.0')
 
 async def async_poll_contact(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
-    return await async_poll('sysContact.0', host, community, version=version, retries=retries, timeout=timeout)
+    poll_result = await async_poll('sysContact.0', host, community, version=version, retries=retries, timeout=timeout)
+    if poll_result:
+        return poll_result.get('sysContact.0')
 
 def poll_name(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
-    return poll('sysName.0', host, community, version=version, retries=retries, timeout=timeout)
+    poll_result = poll('sysName.0', host, community, version=version, retries=retries, timeout=timeout)
+    if poll_result:
+        return poll_result.get('sysName.0')
 
 async def async_poll_name(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
-    return await async_poll('sysName.0', host, community, version=version, retries=retries, timeout=timeout)
+    poll_result = await async_poll('sysName.0', host, community, version=version, retries=retries, timeout=timeout)
+    if poll_result:
+        return poll_result.get('sysName.0')
 
 def poll_location(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
-    return poll('sysLocation.0', host, community, version=version, retries=retries, timeout=timeout)
+    poll_result = poll('sysLocation.0', host, community, version=version, retries=retries, timeout=timeout)
+    if poll_result:
+        return poll_result.get('sysLocation.0')
 
 async def async_poll_location(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
-    return await async_poll('sysLocation.0', host, community, version=version, retries=retries, timeout=timeout)
+    poll_result = await async_poll('sysLocation.0', host, community, version=version, retries=retries, timeout=timeout)
+    if poll_result:
+        return poll_result.get('sysLocation.0')
 
-def poll_model(host, community, **kwargs):
+def poll_make_series_model(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
-    false_positives = re.compile("|".join(['MIDPLANE', \
-                                            'NOSUCH', \
-                                            'N/A', \
-                                            'PORT', \
-                                            'ÿ', \
-                                            'DaughterCard', \
-                                            'Switch\ Stack', \
-                                            'Chassis\ System', \
-                                            'Control Ethernet', \
-                                            'NC6-RP', \
-                                            '\d\d\d\-\d\d\d\d', \
-                                            'Virtual', \
-                                            '\d\d\.\d', \
-                                            '\d\.\d\.\d', \
-                                            '7600', \
-                                            ]))
-    model = False
-    oids = [
-            '1.3.6.1.2.1.47.1.1.1.1.7.1',\
-            '1.3.6.1.2.1.47.1.1.1.1.13.4', \
-            '1.3.6.1.2.1.47.1.1.1.1.13.1', \
-            '1.3.6.1.2.1.47.1.1.1.1.2.1', \
-            '1.3.6.1.2.1.47.1.1.1.1.2.149', \
-            '1.3.6.1.2.1.47.1.1.1.1.13.1001', \
-            '1.3.6.1.2.1.47.1.1.1.1.2.24555730', \
-            '1.3.6.1.2.1.47.1.1.1.1.2.2', \
-            '1.3.6.1.4.1.9.9.249.1.1.1.1.3', \
-            '1.3.6.1.4.1.9.9.249.1.1.1.1.2', \
-            '1.3.6.1.2.1.47.1.1.1.1.10.2', \
-            '1.3.6.1.4.1.6527.3.1.2.2.1.6.1.2.2', \
-            '1.3.6.1.4.1.6527.3.1.2.2.1.6.1.2.12', \
-            '1.3.6.1.4.1.2636.3.40.1.4.1.1.1.8.0', \
-            '1.3.6.1.4.1.2636.3.1.2.0', \
-            '1.3.6.1.4.1.10418.16.2.1.2.0',\
-            '1.3.6.1.4.1.10418.26.2.1.2.0',\
-            '1.3.6.1.4.1.3375.2.1.3.5.2.0',\
-            ]
-    while not model and oids:
-        oid = oids.pop(0)
-        model = poll(oid, host, community, version=version, retries=retries, timeout=timeout)
-        if model:
-            for value in model.values():
-                if not value or not value.strip() or false_positives.search(value) or value == 'CHASSIS' or value == 'C ' or value == 'Chassis':
-                    model = False
-    return model
+    object_id = poll('sysObjectID.0', host, community, version=version, retries=retries, timeout=timeout)
+    if not object_id:
+        return
+    oid = object_id.get('sysObjectID.0').lstrip('.')
+    base = oid
+    if not base:
+        return
+    oid_dict = {}
+    while base and not oid_dict:
+        oid_dict = translations.get(base)
+        if not oid_dict:
+            base = ".".join(base.split('.')[:-1])
+    if not base or not oid_dict:
+        return
+    make = oid_dict.get('make')
+    series = None
+    model = None
+    model_octets = re.sub(base, '', oid).split('.')[1:] if base != '1.3.6.1.4.1.2636.1.1.1' else re.sub(base, '', oid).split('.')[2:]
+    if make == 'a10':
+        if len(model_octets) == 1:
+            series = oid_dict.get(model_octets[0]).get('series') if oid_dict.get(model_octets[0]) else None
+        else:
+            series = oid_dict.get(model_octets[0]).get(model_octets[1]).get('series') if oid_dict.get(model_octets[0]) and oid_dict.get(model_octets[0]).get(model_octets[1]) else None
+        model_poll = poll('sysDescr.0', host, community, version=version, retries=retries, timeout=timeout)
+        if not model_poll or not model_poll.get('sysDescr.0') or re.search('NOSUCHOBJECT', str(model_poll.values())):
+            return
+        a10_model_regex = re.compile(r'(?:AX|TH)\d{3,4}(?:S|-\d+)?')
+        model = a10_model_regex.search(model_poll.get('sysDescr.0')).group(0) if a10_model_regex.search(model_poll.get('sysDescr.0')) else None
+    elif make == 'arista':
+        model = ''.join(oid_dict.get(octet) if oid_dict.get(octet) else octet for octet in model_octets)
+        series = ''.join(oid_dict.get(octet) if oid_dict.get(octet) else octet for octet in model_octets[:2])
+    elif make == 'cisco':
+        model = oid_dict.get(model_octets[0]).get('model') if oid_dict.get(model_octets[0]) else None
+        series = oid_dict.get(model_octets[0]).get('series') if oid_dict.get(model_octets[0]) else None
+    elif make in ['alcatel', 'juniper', 'f5']:
+        subset = oid_dict.get(model_octets[0])
+        if subset:
+            series = subset.get('series')
+            if len(model_octets) == 1:
+                model = subset.get('model') if subset.get('model') else subset.get('base')
+            else:
+                model = subset.get('model') if subset.get('model') else "".join((subset.get('base'), subset.get(model_octets[-1]).get('model')))
+    elif make == 'avocent':
+        poll_result = poll('1.3.6.1.4.1.10418.16.2.1.2.0', host, community, version=version, retries=retries, timeout=timeout)
+        if poll_result and re.search('NOSUCHOBJECT', str(poll_result.values())):
+            poll_result = None
+        poll_result = poll('1.3.6.1.4.1.10418.26.2.1.2.0', host, community, version=version, retries=retries, timeout=timeout) if not poll_result else poll_result
+        if poll_result and re.search('ACS\d{4}', str(poll_result.values())):
+            model = re.search('ACS\d{4}', str(poll_result.values())).group(0)
+            series = f'{model[:5]}00'
+    if not all((make, series, model)):
+        print(f'poll_make_series_model {host}: oid {oid} not fully recognized ({make}, {series}, {model})')
+    return make, series, model
 
-async def async_poll_model(host, community, **kwargs):
+async def async_poll_make_series_model(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
-    false_positives = re.compile("|".join(['MIDPLANE', \
-                                            'NOSUCH', \
-                                            'N/A', \
-                                            'PORT', \
-                                            'ÿ', \
-                                            'DaughterCard', \
-                                            'Switch\ Stack', \
-                                            'Chassis\ System', \
-                                            'Control Ethernet', \
-                                            'NC6-RP', \
-                                            '\d\d\d\-\d\d\d\d', \
-                                            'Virtual', \
-                                            '\d\d\.\d', \
-                                            '\d\.\d\.\d', \
-                                            '7600', \
-                                            ]))
-    model = False
-    oids = [
-            '1.3.6.1.2.1.47.1.1.1.1.7.1',\
-            '1.3.6.1.2.1.47.1.1.1.1.13.4', \
-            '1.3.6.1.2.1.47.1.1.1.1.13.1', \
-            '1.3.6.1.2.1.47.1.1.1.1.2.1', \
-            '1.3.6.1.2.1.47.1.1.1.1.2.149', \
-            '1.3.6.1.2.1.47.1.1.1.1.13.1001', \
-            '1.3.6.1.2.1.47.1.1.1.1.2.24555730', \
-            '1.3.6.1.2.1.47.1.1.1.1.2.2', \
-            '1.3.6.1.4.1.9.9.249.1.1.1.1.3', \
-            '1.3.6.1.4.1.9.9.249.1.1.1.1.2', \
-            '1.3.6.1.2.1.47.1.1.1.1.10.2', \
-            '1.3.6.1.4.1.6527.3.1.2.2.1.6.1.2.2', \
-            '1.3.6.1.4.1.6527.3.1.2.2.1.6.1.2.12', \
-            '1.3.6.1.4.1.2636.3.40.1.4.1.1.1.8.0', \
-            '1.3.6.1.4.1.2636.3.1.2.0', \
-            '1.3.6.1.4.1.10418.16.2.1.2.0',\
-            '1.3.6.1.4.1.10418.26.2.1.2.0',\
-            '1.3.6.1.4.1.3375.2.1.3.5.2.0',\
-            ]
-    while not model and oids:
-        oid = oids.pop(0)
-        model = await async_poll(oid, host, community, version=version, retries=retries, timeout=timeout)
-        if model:
-            for value in model.values():
-                if not value or not value.strip() or false_positives.search(value) or value == 'CHASSIS' or value == 'C ' or value == 'Chassis':
-                    model = False
-    return model
+    object_id = await async_poll('sysObjectID.0', host, community, version=version, retries=retries, timeout=timeout)
+    if not object_id:
+        return None, None, None
+    oid = object_id.get('sysObjectID.0').lstrip('.')
+    base = oid
+    if not base:
+        return None, None, None
+    oid_dict = {}
+    while base and not oid_dict:
+        oid_dict = translations.get(base)
+        if not oid_dict:
+            base = ".".join(base.split('.')[:-1])
+    if not base or not oid_dict:
+        return None, None, None
+    make = oid_dict.get('make')
+    series = None
+    model = None
+    model_octets = re.sub(base, '', oid).split('.')[1:] if base != '1.3.6.1.4.1.2636.1.1.1' else re.sub(base, '', oid).split('.')[2:]
+    if make == 'a10':
+        if len(model_octets) == 1:
+            series = oid_dict.get(model_octets[0]).get('series') if oid_dict.get(model_octets[0]) else None
+        else:
+            series = oid_dict.get(model_octets[0]).get(model_octets[1]).get('series') if oid_dict.get(model_octets[0]) and oid_dict.get(model_octets[0]).get(model_octets[1]) else None
+        model_poll = await async_poll('sysDescr.0', host, community, version=version, retries=retries, timeout=timeout)
+        if not model_poll or not model_poll.get('sysDescr.0') or re.search('NOSUCHOBJECT', str(model_poll.values())):
+            return None, None, None
+        a10_model_regex = re.compile(r'(?:AX|TH)\d{3,4}(?:S|-\d+)?')
+        model = a10_model_regex.search(model_poll.get('sysDescr.0')).group(0) if a10_model_regex.search(model_poll.get('sysDescr.0')) else None
+    elif make == 'arista':
+        model = ''.join(oid_dict.get(octet) if oid_dict.get(octet) else octet for octet in model_octets)
+        series = ''.join(oid_dict.get(octet) if oid_dict.get(octet) else octet for octet in model_octets[:2])
+    elif make == 'cisco':
+        model = oid_dict.get(model_octets[0]).get('model') if oid_dict.get(model_octets[0]) else None
+        series = oid_dict.get(model_octets[0]).get('series') if oid_dict.get(model_octets[0]) else None
+    elif make in ['alcatel', 'juniper', 'f5']:
+        subset = oid_dict.get(model_octets[0])
+        if subset:
+            series = subset.get('series')
+            if len(model_octets) == 1:
+                model = subset.get('model') if subset.get('model') else subset.get('base')
+            else:
+                model = subset.get('model') if subset.get('model') else "".join((subset.get('base'), subset.get(model_octets[-1]).get('model')))
+    elif make == 'avocent':
+        poll_result = await async_poll('1.3.6.1.4.1.10418.16.2.1.2.0', host, community, version=version, retries=retries, timeout=timeout)
+        if poll_result and re.search('NOSUCHOBJECT', str(poll_result.values())):
+            poll_result = None
+        poll_result = await async_poll('1.3.6.1.4.1.10418.26.2.1.2.0', host, community, version=version, retries=retries, timeout=timeout) if not poll_result else poll_result
+        if poll_result and re.search('ACS\d{4}', str(poll_result.values())):
+            model = re.search('ACS\d{4}', str(poll_result.values())).group(0)
+            series = f'{model[:5]}00'
+    if not all((make, series, model)):
+        print(f'poll_make_series_model {host}: oid {oid} not fully recognized ({make}, {series}, {model})')
+    return make, series, model
 
 def poll_interface_number(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
-    return poll('ifNumber.0', host, community, version=version, retries=retries, timeout=timeout)
+    poll_result = poll('ifNumber.0', host, community, version=version, retries=retries, timeout=timeout)
+    return poll_result.get('ifNumber.0')
 
 async def async_poll_interface_number(host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
-    return await async_poll('ifNumber.0', host, community, version=version, retries=retries, timeout=timeout)
+    poll_result = await async_poll('ifNumber.0', host, community, version=version, retries=retries, timeout=timeout)
+    return poll_result.get('ifNumber.0')
 
 def poll_interface_ips(host, community, index=None, v6=False, **kwargs):
     version = kwargs.get('version', 2)
@@ -613,21 +642,7 @@ async def async_ping_poll(*iprange, retries=2):
             except BlockingIOError:
                 await asyncio.sleep(1)
 
-def poll_make_model(host, community, **kwargs):
-    version = kwargs.get('version', 2)
-    retries = kwargs.get('retries', 1)
-    timeout = kwargs.get('timeout', 1)
-    make = None
-    model = None
-    result = poll('sysObjectID.0', host, community, version=version, retries=retries, timeout=timeout)
-    sysObjectId = result.get('sysObjectID.0') if result and result.get('sysObjectID.0') else None
-    if sysObjectId:
-        make = translations.get(sysObjectId).get('make')
-        model = translations.get(sysObjectId).get('model')
-    return make, model
-
-
-#Internal formatting function
+#Helper formatting function
 def _convertToDict(easysnmpvariable):
     if isinstance(easysnmpvariable, (easysnmp.variables.SNMPVariableList, list)):
         output = {}
