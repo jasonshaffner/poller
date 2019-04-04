@@ -218,7 +218,7 @@ def poll_make_series_model(host, community, **kwargs):
             model = re.search('ACS\d{4}', str(poll_result.values())).group(0)
             series = f'{model[:5]}00'
     if not all((make, series, model)):
-        print(f'poll_make_series_model {host}: oid {oid} not fully recognized ({make}, {series}, {model})')
+        print(f'poll_make_series_model {host}: oid {oid} not fully recognized ({make}, {series}, {model}) ')
     return make, series, model
 
 async def async_poll_make_series_model(host, community, **kwargs):
