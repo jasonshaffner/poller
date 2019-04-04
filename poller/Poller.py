@@ -267,6 +267,8 @@ async def async_poll_make_series_model(host, community, **kwargs):
                 model = subset.get('model') if subset.get('model') else subset.get('base')
             else:
                 model = subset.get('model') if subset.get('model') else "".join((subset.get('base'), subset.get(model_octets[-1]).get('model')))
+                if not series and make == 'juniper':
+                    series = "".join((subset.get('base'), subset.get(model_octets[-1]).get('series')))
     elif make == 'avocent':
         poll_result = await async_poll('1.3.6.1.4.1.10418.16.2.1.2.0', host, community, version=version, retries=retries, timeout=timeout)
         if poll_result and re.search('NOSUCHOBJECT', str(poll_result.values())):
