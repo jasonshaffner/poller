@@ -427,8 +427,8 @@ def poll_interfaces(host, community, v6=False, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
-    if v6: address = "v6_address"
-    else: address = "v4_address"
+    if v6: address = "v6_ip"
+    else: address = "v4_ip"
     ips = poll_interface_ips(host, community, v6=v6, version=version, retries=2, timeout=timeout)
     interfaces = poll_ifDescr(host, community, version=version, retries=2, timeout=timeout)
     oper = poll_ifOperStatus(host, community, version=version, retries=2, timeout=timeout)
@@ -445,8 +445,8 @@ async def async_poll_interfaces(host, community, v6=False, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
-    if v6: address = "v6_address"
-    else: address = "v4_address"
+    if v6: address = "v6_ip"
+    else: address = "v4_ip"
     ips = await async_poll_interface_ips(host, community, v6=v6, version=version, retries=retries, timeout=timeout)
     interfaces = await async_poll_ifDescr(host, community, version=version, retries=retries, timeout=timeout)
     oper = await async_poll_ifOperStatus(host, community, version=version, retries=2, timeout=timeout)
@@ -463,8 +463,8 @@ def poll_ip_interfaces(host, community, v6=False, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
-    if v6: address = "v6_address"
-    else: address = "v4_address"
+    if v6: address = "v6_ip"
+    else: address = "v4_ip"
     ips = poll_interface_ips(host, community, v6=v6, version=version, retries=2, timeout=timeout)
     interfaces = poll_ifDescr(host, community, version=version, retries=2, timeout=timeout)
     result = []
@@ -478,8 +478,8 @@ async def async_poll_ip_interfaces(host, community, v6=False, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
-    if v6: address = "v6_address"
-    else: address = "v4_address"
+    if v6: address = "v6_ip"
+    else: address = "v4_ip"
     ips = await async_poll_interface_ips(host, community, v6=v6, version=version, retries=2, timeout=timeout)
     interfaces = await async_poll_ifDescr(host, community, version=version, retries=2, timeout=timeout)
     result = []
@@ -556,9 +556,7 @@ async def async_poll_serial_number(host, community, index=None, make=None, **kwa
         oids = {make: oids.get(make)}
     if not isinstance(index, type(None)):
         for oid in oids.values():
-            #print(f'async_poll_serial_number: oid: {oid}, index: {index}, {".".join((oid, str(index)))}')
             result = await async_poll(".".join((oid, str(index))), host, community, version=version, retries=retries, timeout=timeout)
-            #print(f'async_poll_serial_number: oid: {oid}, index: {index}, {".".join((oid, str(index)))}, result: {result}')
             if result and 'NOSUCHOBJECT' not in result.values():
                 return result
     else:
