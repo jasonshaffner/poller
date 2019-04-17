@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='poller',
-    version='0.9',
+    version='0.91',
     packages=['poller', 'poller.utils'],
     package_data={'poller': ['translations']},
     scripts=['scripts/poll', \
