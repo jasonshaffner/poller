@@ -315,6 +315,7 @@
         "1368": {"series": "c3500", "model": "WS-C3560C-PD-8PT-S"},
         "1404": {"series": "c3700", "model": "WS-C3750X-24-S"},
         "1405": {"series": "c3700", "model": "WS-C3750X-12-S"},
+        "1409": {"series": "ASA-55xx", "model": "ASA5545"},
         "1465": {"series": "c3500", "model": "WS-C3560C-12PC-S"},
         "1466": {"series": "c3500", "model": "WS-C3560C-8PC-S"},
         "1525": {"series": "ASR1000", "model": "ASR1002X"},
