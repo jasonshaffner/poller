@@ -9,7 +9,7 @@ output = []
 for interface in interfaces:
     admin_status = 'DOWN' if int(interface.get('admin_status')) > 1 else 'UP'
     oper_status = 'DOWN' if int(interface.get('oper_status')) > 1 else 'UP'
-    output.append([interface.get('interface'), admin_status, oper_status, interface.get('v4_address')])
+    output.append([interface.get('interface'), admin_status, oper_status, interface.get('v4_ip')])
 output = sorted(output)
 output.insert(0, ['Interface', 'Admin', 'Oper', 'Address'])
 print(StringUtils.columnize(output, width=10))

@@ -59,6 +59,7 @@
         "323": {"series": "c2950", "model": "WS-C2950-12"},
         "324": {"series": "c2950", "model": "WS-C2950-24"},
         "325": {"series": "c2950", "model": "WS-C2950-24C"},
+        "340": {"series": "c3660", "model": "C3662-AC"},
         "359": {"series": "c2950", "model": "WS-C2950T-24"},
         "366": {"series": "c3550", "model": "WS-C3550-24"},
         "367": {"series": "c3550", "model": "WS-C3550-48"},
@@ -191,6 +192,7 @@
         "876": {"series": "c4500", "model": "WS-C4507re"},
         "877": {"series": "c4500", "model": "WS-C4510re"},
         "896": {"series": "c6500", "model": "WS-C65xxVirtualSwitch"},
+        "914": {"series": "ASA-55x0", "model": "ASA5580"},
         "917": {"series": "c4500", "model": "WS-C4900M"},
         "923": {"series": "ASR1000", "model": "ASR1002"},
         "924": {"series": "ASR1000", "model": "ASR1004"},
@@ -547,6 +549,7 @@
 		"108": {"series": "VMX", "model": "VMX"},
 		"110": {"series": "VRR", "model": "VRR"},
 		"109": {"series": "EX4600", "model": "EX4600"},
+        "115": {"series": "ACX1100", "model": "ACX1100"},
         "142": {"series": "SRX4100", "model": "SRX4100"}
     },
     "1.3.6.1.4.1.3224.1": {
