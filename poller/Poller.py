@@ -10,6 +10,42 @@ from poller.utils import IPUtils
 
 translations = json.loads(pkgutil.get_data('poller', 'translations'))
 
+#Closures
+def poll_func(oids, community, **kwargs):
+    """
+    Closure returning function that polls host using params provided at instantiation
+    """
+    version = kwargs.get('version', 2)
+    retries = kwargs.get('retries', 1)
+    timeout = kwargs.get('timeout', 1)
+    def poll(host):
+        try:
+            get = easysnmp.snmp_get(oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout)
+        except Exception as err:
+            return
+        if get:
+            return _convertToDict(get)
+    return poll
+
+def async_poll_func(oids, community, **kwargs):
+    """
+    Closure returning function that asyncronously polls host using params provided at instantiation
+    """
+    version = kwargs.get('version', 2)
+    retries = kwargs.get('retries', 1)
+    timeout = kwargs.get('timeout', 1)
+
+    @asyncio.coroutine
+    def poll(host):
+        loop = asyncio.get_event_loop()
+        try:
+            get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_get, oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
+        except Exception as err:
+            return
+        if get:
+            return _convertToDict(get)
+    return poll
+
 #Generic poller, add any oid(s)
 def poll(oids, host, community, **kwargs):
     version = kwargs.get('version', 2)
