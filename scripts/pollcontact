@@ -1,6 +1,45 @@
 #!/bin/env python3
 
 import sys
+import asyncio
 from poller import Poller
 
-print(Poller.poll_contact(sys.argv[1], sys.argv[2]))
+def parse_params():
+    community = None
+    ip = None
+    ip_list = None
+    oid = None
+    for i, arg in enumerate(sys.argv):
+        if arg in ('-c', '--community'):
+            community = sys.argv[i+1]
+        elif arg in ('-i', '--ip'):
+            ip = sys.argv[i+1]
+        elif arg in ('-f', '--file'):
+            ip_list = sys.argv[i+1]
+        elif arg in ('-o', '--oid'):
+            oid = sys.argv[i+1]
+    community = input('SNMP Community String: ') if not community else community
+    ip = input('IP to poll: ') if not ip and not ip_list else ip
+    ip_list = input('File of IPs to poll: ') if not ip and not ip_list else ip_list
+    if ip_list:
+        ip_list = open(ip_list, 'r').readlines()
+    if not community and not (ip or ip_list):
+        print('Please supply community and ip address')
+        return
+    return (community, ip, ip_list)
+
+async def poller(func, host, community):
+    result = await func(host, community)
+    print(f'{host}: {result}')
+
+if __name__ == "__main__":
+    try:
+        community, ip, ip_list = parse_params()
+    except:
+        exit()
+    if ip and not ip_list:
+        print(Poller.poll_contact(ip, community))
+    elif ip_list:
+        loop = asyncio.new_event_loop()
+        tasks = [loop.create_task(poller(Poller.async_poll_contact, host.strip(), community)) for host in ip_list]
+        loop.run_until_complete(asyncio.wait(tasks))
