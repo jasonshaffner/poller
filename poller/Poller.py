@@ -661,8 +661,8 @@ def ping_poll(*iprange):
     return False if raw.returncode else True
 
 async def async_ping_poll(*iprange, retries=2):
+    #Calling this function, make sure you have child watcher attached to loop
     loop = asyncio.get_event_loop()
-    asyncio.get_child_watcher().attach_loop(loop)
     if len(iprange) > 1:
         for attempt in range(retries):
             try:
