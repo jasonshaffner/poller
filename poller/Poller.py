@@ -35,11 +35,10 @@ def async_poll_func(oids, community, **kwargs):
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
 
-    @asyncio.coroutine
-    def poll(host):
+    async def poll(host):
         loop = asyncio.get_event_loop()
         try:
-            get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_get, oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
+            get = await loop.run_in_executor(None, partial(easysnmp.snmp_get, oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
         except Exception as err:
             return
         if get:
@@ -58,14 +57,13 @@ def poll(oids, host, community, **kwargs):
     if get:
         return _convertToDict(get)
 
-@asyncio.coroutine
-def async_poll(oids, host, community, **kwargs):
+async def async_poll(oids, host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     loop = asyncio.get_event_loop()
     try:
-        get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_get, oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
+        get = await loop.run_in_executor(None, partial(easysnmp.snmp_get, oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
     except Exception as err:
         return
     if get:
@@ -83,27 +81,25 @@ def poll_bulk(oids, host, community, **kwargs):
     if get:
         return _convertToDict(get)
 
-@asyncio.coroutine
-def async_poll_bulk(oids, host, community, **kwargs):
+async def async_poll_bulk(oids, host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     loop = asyncio.get_event_loop()
     try:
-        get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_get_bulk, oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
+        get = await loop.run_in_executor(None, partial(easysnmp.snmp_get_bulk, oids, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
     except Exception as err:
         return
     if get:
         return _convertToDict(get)
 
-@asyncio.coroutine
-def async_walk(oid, host, community, **kwargs):
+async def async_walk(oid, host, community, **kwargs):
     version = kwargs.get('version', 2)
     retries = kwargs.get('retries', 1)
     timeout = kwargs.get('timeout', 1)
     loop = asyncio.get_event_loop()
     try:
-        get = yield from loop.run_in_executor(None, partial(easysnmp.snmp_walk, oid, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
+        get = await loop.run_in_executor(None, partial(easysnmp.snmp_walk, oid, hostname=host, version=version, community=community, retries=retries, timeout=timeout))
     except Exception as err:
         return
     if get:
