@@ -254,10 +254,14 @@ def poll_make_series_model(host, community, **kwargs):
     elif make == 'niagara':
         poll_result = poll('sysDescr.0', host, community, version=version, retries=retries, timeout=timeout)
         if poll_result and poll_result.get('sysDescr.0') and not re.search('NOSUCHOBJECT', str(poll_result)):
-            result = re.search('Model Number: (\w+) (\w+)', poll_result.get('sysDescr.0'), re.I)
+            result = re.search('Model Number: (\w+)( |-)(\w+)', poll_result.get('sysDescr.0'), re.I)
             if result:
-                series = result.group(1)
-                model = result.group(2)
+                if result.group(2) == ' ':
+                    series = result.group(1)
+                    model = result.group(3)
+                else:
+                    series = result.group(1)
+                    model = "-".join((result.group(1), result.group(3)))
     if not all((make, series, model)):
         logging.debug(f'poll_make_series_model {host}: oid {oid} not fully recognized ({make}, {series}, {model}) ')
     return make, series, model
@@ -321,10 +325,14 @@ async def async_poll_make_series_model(host, community, **kwargs):
     elif make == 'niagara':
         poll_result = poll('sysDescr.0', host, community, version=version, retries=retries, timeout=timeout)
         if poll_result and poll_result.get('sysDescr.0') and not re.search('NOSUCHOBJECT', str(poll_result)):
-            result = re.search('Model Number: (\w+) (\w+)', poll_result.get('sysDescr.0'), re.I)
+            result = re.search('Model Number: (\w+)( |-)(\w+)', poll_result.get('sysDescr.0'), re.I)
             if result:
-                series = result.group(1)
-                model = result.group(2)
+                if result.group(2) == ' ':
+                    series = result.group(1)
+                    model = result.group(3)
+                else:
+                    series = result.group(1)
+                    model = "-".join((result.group(1), result.group(3)))
     if not all((make, series, model)):
         logging.debug(f'poll_make_series_model {host}: oid {oid} not fully recognized ({make}, {series}, {model})')
     return make, series, model

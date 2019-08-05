@@ -397,6 +397,7 @@
         "2138": {"series": "c2900", "model": "2911TK9"},
         "2143": {"series": "ASR1000", "model": "ASR-1006X"},
         "2144": {"series": "ASR1000", "model": "ASR-1009X"},
+        "2179": {"series": "UCS C-Series", "model": "C240-M4SX"},
         "2191": {"series": "c2960", "model": "WS-C2960CX-8PC-L"},
         "2252": {"series": "ASR1000", "model": "ASR-1002HX"},
         "2264": {"series": "IOS-XRv", "model": "IOSXRV9000"},
