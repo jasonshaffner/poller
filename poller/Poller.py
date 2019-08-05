@@ -1,11 +1,13 @@
-import pkgutil
 import re
 import json
-import easysnmp
-import subprocess
 import time
+import logging
 import asyncio
+import pkgutil
+import subprocess
 from functools import partial
+
+import easysnmp
 from poller.utils import IPUtils
 
 translations = json.loads(pkgutil.get_data('poller', 'translations'))
@@ -246,11 +248,18 @@ def poll_make_series_model(host, community, **kwargs):
         if poll_result and re.search('NOSUCHOBJECT', str(poll_result.values())):
             poll_result = None
         poll_result = poll('1.3.6.1.4.1.10418.26.2.1.2.0', host, community, version=version, retries=retries, timeout=timeout) if not poll_result else poll_result
-        if poll_result and re.search('ACS\d{4}', str(poll_result.values())):
-            model = re.search('ACS\d{4}', str(poll_result.values())).group(0)
+        if poll_result and re.search(r'ACS\d{4}', str(poll_result.values())):
+            model = re.search(r'ACS\d{4}', str(poll_result.values())).group(0)
             series = f'{model[:5]}00'
+    elif make == 'niagara':
+        poll_result = poll('sysDescr.0', host, community, version=version, retries=retries, timeout=timeout)
+        if poll_result and poll_result.get('sysDescr.0') and not re.search('NOSUCHOBJECT', str(poll_result)):
+            result = re.search('Model Number: (\w+) (\w+)', poll_result.get('sysDescr.0'), re.I)
+            if result:
+                series = result.group(1)
+                model = result.group(2)
     if not all((make, series, model)):
-        print(f'poll_make_series_model {host}: oid {oid} not fully recognized ({make}, {series}, {model}) ')
+        logging.debug(f'poll_make_series_model {host}: oid {oid} not fully recognized ({make}, {series}, {model}) ')
     return make, series, model
 
 async def async_poll_make_series_model(host, community, **kwargs):
@@ -306,11 +315,18 @@ async def async_poll_make_series_model(host, community, **kwargs):
         if poll_result and re.search('NOSUCHOBJECT', str(poll_result.values())):
             poll_result = None
         poll_result = await async_poll('1.3.6.1.4.1.10418.26.2.1.2.0', host, community, version=version, retries=retries, timeout=timeout) if not poll_result else poll_result
-        if poll_result and re.search('ACS\d{4}', str(poll_result.values())):
-            model = re.search('ACS\d{4}', str(poll_result.values())).group(0)
+        if poll_result and re.search(r'ACS\d{4}', str(poll_result.values())):
+            model = re.search(r'ACS\d{4}', str(poll_result.values())).group(0)
             series = f'{model[:5]}00'
+    elif make == 'niagara':
+        poll_result = poll('sysDescr.0', host, community, version=version, retries=retries, timeout=timeout)
+        if poll_result and poll_result.get('sysDescr.0') and not re.search('NOSUCHOBJECT', str(poll_result)):
+            result = re.search('Model Number: (\w+) (\w+)', poll_result.get('sysDescr.0'), re.I)
+            if result:
+                series = result.group(1)
+                model = result.group(2)
     if not all((make, series, model)):
-        print(f'poll_make_series_model {host}: oid {oid} not fully recognized ({make}, {series}, {model})')
+        logging.debug(f'poll_make_series_model {host}: oid {oid} not fully recognized ({make}, {series}, {model})')
     return make, series, model
 
 def poll_interface_number(host, community, **kwargs):
@@ -609,7 +625,7 @@ def poll_number_of_chassis(host, community, make, **kwargs):
         return
     snmp_output = walk(oid, host, community, version=version, retries=retries, timeout=timeout)
     if not snmp_output:
-        print(f'No output from walk {host} {make} {oid}')
+        logging.debug(f'No output from walk {host} {make} {oid}')
         return
     chassis = 0
     for key in snmp_output.keys():
@@ -619,7 +635,7 @@ def poll_number_of_chassis(host, community, make, **kwargs):
             elif make == 'alcatel' and re.search('chassis', snmp_output.get(key), flags=re.IGNORECASE):
                 chassis += 1
         except ValueError as err:
-            print(err)
+            logging.debug(err)
     return chassis
 
 async def async_poll_number_of_chassis(host, community, make, **kwargs):
@@ -634,7 +650,7 @@ async def async_poll_number_of_chassis(host, community, make, **kwargs):
         return
     snmp_output = await async_walk(oid, host, community, version=version, retries=retries, timeout=timeout)
     if not snmp_output:
-        print(f'No output from walk {host} {make} {oid}')
+        logging.debug(f'No output from walk {host} {make} {oid}')
         return
     chassis = 0
     for key in snmp_output.keys():
@@ -644,7 +660,7 @@ async def async_poll_number_of_chassis(host, community, make, **kwargs):
             elif make == 'alcatel' and re.search('chassis', snmp_output.get(key), flags=re.IGNORECASE):
                 chassis += 1
         except ValueError as err:
-            print(err)
+            logging.debug(err)
     return chassis
 
 def ping_poll(*iprange):
