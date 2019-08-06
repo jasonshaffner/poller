@@ -26,7 +26,7 @@
     },
     "1.3.6.1.4.1.36418.2" {
         "make": "cisco",
-        "2010": {"series": "UCS C-Series", "model": "C240-M4SX"},
+        "2010": {"series": "UCS C-Series", "model": "C240-M4SX"}
     },
     "1.3.6.1.4.1.9.1": {
         "make": "cisco", 
