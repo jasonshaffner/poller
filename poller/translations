@@ -248,7 +248,7 @@
         "1148": {"series": "c2960", "model": "WS-C2960-48PS-TS"},
         "1165": {"series": "ASR1000", "model": "ASR-1001"},
         "1166": {"series": "ASR1000", "model": "ASR-1013"},
-        "1178": {"series": "c4500", "model": "WS-C4948-10GE"},
+        "1178": {"series": "c4500", "model": "WS-C4948E"},
         "1179": {"series": "c2960", "model": "WS-C2960X-48TS-S"},
         "1180": {"series": "c2960", "model": "WS-C2960X-24TS-S"},
         "1181": {"series": "c2960", "model": "WS-C2960XS-48FP-dL"},
